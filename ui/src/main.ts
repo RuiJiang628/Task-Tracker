@@ -8,6 +8,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Admin from './views/Admin.vue'
 import EndUser from './views/EndUser.vue'
 import Login from './views/Login.vue'
+import Register from './views/Register.vue'
 
 const routes = [
 	// a component that will be rendered when the route is matched
@@ -19,7 +20,8 @@ const routes = [
 			};
 		}
 	},
-	{ path: "/login", component: Login}
+	{ path: "/login", component: Login},
+	{ path: "/register", component: Register}
 ]
 
 const router = createRouter({
