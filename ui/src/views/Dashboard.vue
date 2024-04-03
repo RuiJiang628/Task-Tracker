@@ -26,7 +26,7 @@
 
       <!-- Greeting Section -->
       <div class="greeting-section">
-        <h1>Hello, Ray!</h1>
+        <h2>Hello, Ray!</h2>
         <p>What do you want to do today?</p>
       </div>
 
@@ -34,7 +34,7 @@
       <section class="task-section">
         <!-- Task Header -->
         <header class="task-header">
-          <h2>Today’s Tasks</h2>
+          <h2>Today's Tasks</h2>
           <div>
             <button class="delete-all-button">Delete All</button>
             <span class="date">Monday, 18 December 2023</span>
@@ -197,18 +197,26 @@ h1 {
 
 .greeting-section {
   background-color: #FFFFFF;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   padding: 20px;
-  width: fit-content; /* Adjust width to fit the content */
+  width: 80%;
+  height: 25%;
   // margin-top: 4rem; /* Adjust for space below the top bar */
   margin-left: 4rem; /* Space from the sidebar */
-}
+  margin-bottom: 5%;
+  align-content: center;
 
-.greeting-section h1,
-.greeting-section p {
-  margin: 0;
-  /* Styles for your heading and paragraph */
+  h2 {
+    font-family: 'Lexend';
+    font-weight: 600;
+    font-size: 2.2rem; /* 35px / 16px = 2.1875rem */
+    line-height: 1.6;
+    color: #251814;
+  }
+  p {
+    font-family: 'Lexend';
+  }
 }
 
 .task-section {
