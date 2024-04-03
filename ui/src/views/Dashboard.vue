@@ -16,29 +16,39 @@
       </nav>
     </aside>
 
-    <!-- 右侧主体内容区域 -->
-    <div class="main-content">
-      <!-- 顶部导航栏 -->
-      <header class="main-header">
-        <h1>Hello, Ray!</h1>
-        <button class="sign-out-button">Sign out</button>
-      </header>
+   <!-- Main content area -->
+   <div class="main-content">
+      <!-- Sign out button -->
+      <button class="sign-out-button">
+        Sign out
+        <span class="icon-logout"></span> <!-- Use an appropriate icon here -->
+      </button>
 
-      <!-- 任务列表 -->
+      <!-- Greeting Section -->
+      <div class="greeting-section">
+        <h1>Hello, Ray!</h1>
+        <p>What do you want to do today?</p>
+      </div>
+
+      <!-- Task Section -->
       <section class="task-section">
+        <!-- Task Header -->
         <header class="task-header">
           <h2>Today’s Tasks</h2>
-          <button class="delete-all-button">Delete All</button>
-          <span class="date">Monday, 18 December 2023</span>
+          <div>
+            <button class="delete-all-button">Delete All</button>
+            <span class="date">Monday, 18 December 2023</span>
+          </div>
         </header>
 
+        <!-- Task List -->
         <div class="task-list">
-          <!-- Task items -->
+          <!-- Task Item -->
           <div class="task-item">
             <input type="checkbox" id="task-1" checked>
             <label for="task-1">Buy monthly groceries</label>
           </div>
-          <!-- Repeat for other tasks -->
+          <!-- Additional task items would be inserted here -->
         </div>
       </section>
     </div>
@@ -118,6 +128,44 @@ h1 {
   }
 }
 
+.sign-out-button {
+  display: flex;
+  position: fixed;
+  top: 2vw;
+  left: 85vw;
+  flex-direction: row; /* Align the text and icon in a row */
+  align-items: center; /* Vertically center the text and icon */
+  justify-content: center; /* Horizontally center the text */
+  padding: 16px 24px; /* Padding inside the button */
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  background-color: #BA5112; /* Button background color */
+  border: none; /* No border */
+  color: #FFFFFF; /* Text color */
+  border-radius: 8px; /* Rounded corners for the button */
+  cursor: pointer; /* Change the cursor on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  outline: none; /* Removes the outline */
+  white-space: nowrap; /* Prevents wrapping */
+  gap: 1vw; /* Gap between the text and the icon */
+
+  width: 10vw;
+  height: 5vh;
+}
+
+.icon-logout {
+  background-image: url('../assets/logout-icon.png'); /* Path to your logout icon */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  width: 5vw; /* Width of the icon */
+  height: 5vh; /* Height of the icon */
+}
+
+
 .navigation {
   width: 100%; 
   display: flex;
@@ -144,12 +192,23 @@ h1 {
 .main-content {
   flex-grow: 1;
   padding: 1rem;
+  margin-top: 10vh;
 }
 
-.main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.greeting-section {
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  width: fit-content; /* Adjust width to fit the content */
+  // margin-top: 4rem; /* Adjust for space below the top bar */
+  margin-left: 4rem; /* Space from the sidebar */
+}
+
+.greeting-section h1,
+.greeting-section p {
+  margin: 0;
+  /* Styles for your heading and paragraph */
 }
 
 .task-section {
