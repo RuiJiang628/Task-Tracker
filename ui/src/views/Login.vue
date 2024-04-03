@@ -67,6 +67,7 @@
             margin-bottom: 1vw; // Bottom margin
             margin-top: 4vw;
             font-weight: 600;
+            
         }
 
         p {
