@@ -43,20 +43,39 @@
 
         <!-- Task List -->
         <div class="task-list">
-          <!-- Task Item -->
-          <div class="task-item">
-            <input type="checkbox" id="task-1" checked>
-            <label for="task-1">Buy monthly groceries</label>
+          <div 
+            v-for="(task, index) in tasks" 
+            :key="index" 
+            class="task-item" 
+            :class="{ 'checked': task.checked }"
+          >
+            <!-- Custom Checkbox -->
+            <label class="custom-checkbox">
+              <input type="checkbox" v-model="task.checked">
+              <span class="checkmark"></span>
+            </label>
+            <!-- Task Text -->
+            <span class="task-text">{{ task.text }}</span>
           </div>
-          <!-- Additional task items would be inserted here -->
         </div>
       </section>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script>
 // Your existing script logic here...
+  export default {
+    data() {
+      return {
+        tasks: [
+          { text: 'Buy monthly groceries', checked: true },
+          { text: 'Get nails and hair done', checked: false },
+          // ... other tasks
+        ],
+      };
+    },
+  };
 </script>
 
 <style scoped lang="scss">
@@ -98,21 +117,22 @@ h1 {
   margin: 2vw 0; /* Add margin for spacing */
   
   .add-task-button {
-  display: flex;
-  align-items: center; /* Centers the text and icon vertically */
-  justify-content: space-between; /* Puts space between the text and the icon */
-  padding: 10px 20px; /* Padding inside the button */
-  font-size: 1rem; /* Text size */
-  background-color: #FFFFFF; /* Button background color */
-  border: 1px solid #ccc; /* Border color */
-  border-radius: 20px; /* Rounded corners for the button */
-  cursor: pointer; /* Change the cursor on hover */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  outline: none; /* Removes the outline */
-  border: none; /* Removes the border */
-  position: relative; /* Establishes a positioning context for absolutely positioned children */
-  gap: 10px; /* Gap between the text and the icon */
-}
+    font-family: 'Lexend';
+    display: flex;
+    align-items: center; /* Centers the text and icon vertically */
+    justify-content: space-between; /* Puts space between the text and the icon */
+    padding: 10px 20px; /* Padding inside the button */
+    font-size: 1rem; /* Text size */
+    background-color: #FFFFFF; /* Button background color */
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 20px; /* Rounded corners for the button */
+    cursor: pointer; /* Change the cursor on hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    outline: none; /* Removes the outline */
+    border: none; /* Removes the border */
+    position: relative; /* Establishes a positioning context for absolutely positioned children */
+    gap: 10px; /* Gap between the text and the icon */
+  }
 
 .icon-circle {
   background-color: #BA5112; /* Circle background color */
@@ -151,7 +171,6 @@ h1 {
   outline: none; /* Removes the outline */
   white-space: nowrap; /* Prevents wrapping */
   gap: 1vw; /* Gap between the text and the icon */
-
   width: 10vw;
   height: 5vh;
 }
@@ -175,6 +194,7 @@ h1 {
 
 .nav-button {
   background: none;
+  font-family: 'Lexend';
   border: none;
   padding: 1vw;
   margin: 0.5vw 0; 
@@ -200,7 +220,7 @@ h1 {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   padding: 20px;
-  width: 80%;
+  width: 90%;
   height: 25%;
   // margin-top: 4rem; /* Adjust for space below the top bar */
   margin-left: 4rem; /* Space from the sidebar */
@@ -221,41 +241,108 @@ h1 {
 
 .task-section {
   background: #FFF;
-  padding: 1rem;
   border-radius: 5px;
-}
+  margin-left: 5vw;
+  width: 90%;
 
-.task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .task-header {
+    font-family: 'Lexend';
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.delete-all-button {
-  background: none;
-  border: none;
-}
+    h2 {
+      font-weight: 500;
+    }
+  }
 
-.date {
-  font-size: 0.8rem;
-  color: #666;
-}
+  .delete-all-button {
+    background: none;
+    border: none;
+    width: 6vw;
+    height: 2vh;
+    font-family: 'Lexend';
+    font-style: normal;
+    font-size: 100%;
+    line-height: 100%;
+    color: #BA5112;
+    margin-right: 10vw;
+  }
 
-.task-list {
-  margin-top: 1rem;
-}
+  .date {
+    font-size: 0.8rem;
+    color: #666;
+  }
 
-.task-item {
-  display: flex;
-  align-items: center;
-  margin-top: 1rem;
-}
+  .task-list {
+    display: flex;
+    flex-direction: column;
 
-.task-item input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px; /* Space between task items */
+      padding: 1rem;
+      background: #FFFFFF; /* Default background */
+      border-radius: 12px;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
 
-.task-item label {
-  font-size: 1rem;
+    .custom-checkbox {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .custom-checkbox input[type="checkbox"] {
+      opacity: 0; /* Hide the default checkbox */
+      position: absolute;
+      cursor: pointer;
+      width: 2vw;
+      height: 2vw;
+    }
+
+    /* Unchecked state with only a border */
+    .custom-checkbox::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0;
+      height: 2vw;
+      width: 2vw;
+      border: 2px solid #EDB046;
+      border-radius: 50%; /* Rounded corners for custom checkbox */
+      background-color: transparent; /* No background for unchecked state */
+    }
+
+    /* Checked state with a filled circle */
+    .custom-checkbox input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #BA5112;
+      border-radius: 50%; /* Rounded corners for custom checkbox */
+      z-index: 0;
+    }
+
+    .task-text {
+      font-family: 'Lexend', sans-serif;
+      font-size: 20px;
+      line-height: 24px;
+      color: #251814; /* Default text color */
+      padding-left: 2vw; /* Space for the custom checkbox */
+    }
+
+    /* Change the background color of the entire task item when checked */
+    .task-item.checked {
+      background-color: #EDB046; /* Background color when task is checked */
+      color: #FFFFFF; /* Text color when task is checked */
+    }
+  }
 }
 </style>
