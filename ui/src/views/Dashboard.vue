@@ -315,7 +315,8 @@ h1 {
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #edb046; /* 默认背景色 */
+      background-color: #ffffff; /* 默认背景色 */
+      border: 2px solid #edb046; /* 边框颜色 */
       border-radius: 50%;
       z-index: 0;
     }
