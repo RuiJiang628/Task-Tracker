@@ -70,7 +70,7 @@ export default {
   data() {
     return {
       tasks: [
-        { text: "Buy monthly groceries", checked: false },
+        { text: "Buy monthly groceries", checked: true },
         { text: "Get nails and hair done", checked: false },
         { text: "Prepare Presentations", checked: false },
         // ... other tasks
