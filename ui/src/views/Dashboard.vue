@@ -29,6 +29,7 @@
       <div class="greeting-section">
         <h2>Hello, Ray!</h2>
         <p>What do you want to do today?</p>
+        <span class="date">Monday, 18 December 2023</span>
       </div>
 
       <!-- Task Section -->
@@ -38,7 +39,6 @@
           <h2>Today's Tasks</h2>
           <div>
             <button class="delete-all-button">Delete All</button>
-            <span class="date">Monday, 18 December 2023</span>
           </div>
         </header>
 
@@ -217,6 +217,7 @@ h1 {
 }
 
 .greeting-section {
+  position: relative;
   background-color: #ffffff;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
@@ -237,6 +238,14 @@ h1 {
   }
   p {
     font-family: "Lexend";
+  }
+
+  .date {
+    position: absolute;
+    right: 16px; /* 根据需要调整，这将把日期推向右下角 */
+    bottom: 16px; /* 根据需要调整，这也将把日期推向右下角 */
+    font-size: 0.8rem;
+    color: #666;
   }
 }
 
@@ -267,12 +276,6 @@ h1 {
     font-size: 100%;
     line-height: 100%;
     color: #ba5112;
-    margin-right: 10vw;
-  }
-
-  .date {
-    font-size: 0.8rem;
-    color: #666;
   }
 
   .task-list {
