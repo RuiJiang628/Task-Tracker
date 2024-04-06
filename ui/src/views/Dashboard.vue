@@ -429,6 +429,7 @@ h1 {
 .modal-content {
   background: white;
   padding: 20px;
+  border: none;
   border-radius: 10px;
   width: 500px; /* Adjust width as per your requirement */
 }
