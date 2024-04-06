@@ -1,38 +1,40 @@
-import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
-import App from './App.vue'
+import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
+import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
+import App from "./App.vue";
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Admin from './views/Admin.vue'
-import EndUser from './views/EndUser.vue'
-import Login from './views/Login.vue'
-import Register from './views/Register.vue'
-import Dashboard from './views/Dashboard.vue'
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
+import Admin from "./views/Admin.vue";
+import EndUser from "./views/EndUser.vue";
+import Login from "./views/Login.vue";
+import Register from "./views/Register.vue";
+import Dashboard from "./views/Dashboard.vue";
 
 const routes = [
-	// a component that will be rendered when the route is matched
-	{ path: "/admin", component: Admin },
-	{ path: "/list/:listId", component: EndUser,
-		props(route) {
-			return {
-				listId: route.params.listId
-			};
-		}
-	},
-	{ path: "/login", component: Login},
-	{ path: "/register", component: Register},
-	{ path: "/dashboard", component: Dashboard}
-]
+  // a component that will be rendered when the route is matched
+  { path: "/admin", component: Admin },
+  {
+    path: "/list/:listId",
+    component: EndUser,
+    props(route) {
+      return {
+        listId: route.params.listId,
+      };
+    },
+  },
+  { path: "/login", component: Login },
+  { path: "/register", component: Register },
+  { path: "/dashboard", component: Dashboard },
+];
 
 const router = createRouter({
-	history: createWebHistory(),
-	routes,
-})
+  history: createWebHistory(),
+  routes,
+});
 
 createApp(App)
-	.use(BootstrapVue)
-	.use(BootstrapVueIcons)
-	.use(router)
-	.mount('#app')
+  .use(BootstrapVue)
+  .use(BootstrapVueIcons)
+  .use(router)
+  .mount("#app");

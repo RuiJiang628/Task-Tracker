@@ -10,9 +10,27 @@
         </button>
       </div>
       <nav class="navigation">
-        <button class="nav-button active">Dashboard</button>
-        <button class="nav-button">Active</button>
-        <button class="nav-button">Completed</button>
+        <button
+          class="nav-button"
+          :class="{ active: filterStatus === 'All' }"
+          @click="filterStatus = 'All'"
+        >
+          Dashboard
+        </button>
+        <button
+          class="nav-button"
+          :class="{ active: filterStatus === 'Active' }"
+          @click="filterStatus = 'Active'"
+        >
+          Active
+        </button>
+        <button
+          class="nav-button"
+          :class="{ active: filterStatus === 'Completed' }"
+          @click="filterStatus = 'Completed'"
+        >
+          Completed
+        </button>
       </nav>
     </aside>
 
@@ -22,7 +40,6 @@
       <button class="sign-out-button">
         Sign out
         <span class="icon-logout"></span>
-        <!-- Use an appropriate icon here -->
       </button>
 
       <!-- Greeting Section -->
@@ -36,7 +53,7 @@
       <section class="task-section">
         <!-- Task Header -->
         <header class="task-header">
-          <h2>Today's Tasks</h2>
+          <h2>{{ taskHeaderTitle }}</h2>
           <div>
             <button class="delete-all-button">Delete All</button>
           </div>
@@ -45,8 +62,8 @@
         <!-- Task List -->
         <div class="task-list">
           <div
-            v-for="(task, index) in tasks"
-            :key="index"
+            v-for="task in filteredTasks"
+            :key="task.id"
             class="task-item"
             :class="{ checked: task.checked }"
           >
@@ -70,12 +87,34 @@ export default {
   data() {
     return {
       tasks: [
-        { text: "Buy monthly groceries", checked: true },
-        { text: "Get nails and hair done", checked: false },
-        { text: "Prepare Presentations", checked: false },
-        // ... other tasks
+        { id: 1, text: "Buy monthly groceries", checked: false },
+        { id: 2, text: "Get nails and hair done", checked: false },
+        { id: 3, text: "Prepare Presentations", checked: false },
       ],
+      filterStatus: "All",
     };
+  },
+  computed: {
+    filteredTasks() {
+      switch (this.filterStatus) {
+        case "Active":
+          return this.tasks.filter((task) => !task.checked);
+        case "Completed":
+          return this.tasks.filter((task) => task.checked);
+        default:
+          return this.tasks;
+      }
+    },
+    taskHeaderTitle() {
+      switch (this.filterStatus) {
+        case "Active":
+          return "Today's Active Tasks";
+        case "Completed":
+          return "Today's Completed Tasks";
+        default:
+          return "Today's Tasks";
+      }
+    },
   },
 };
 </script>
@@ -144,8 +183,8 @@ h1 {
     display: flex; /* Enables center alignment for the plus */
     align-items: center; /* Centers the plus vertically */
     justify-content: center; /* Centers the plus horizontally */
-    width: 36px; /* Width of the circle */
-    height: 36px; /* Height of the circle */
+    width: 25px; /* Width of the circle */
+    height: 25px; /* Height of the circle */
     margin-left: auto; /* Pushes the circle to the right */
   }
 }
@@ -224,7 +263,6 @@ h1 {
   padding: 20px;
   width: 90%;
   height: 25%;
-  // margin-top: 4rem; /* Adjust for space below the top bar */
   margin-left: 4rem; /* Space from the sidebar */
   margin-bottom: 5%;
   align-content: center;
