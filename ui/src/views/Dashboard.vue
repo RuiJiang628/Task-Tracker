@@ -10,9 +10,15 @@
         </button>
       </div>
       <nav class="navigation">
-        <button class="nav-button active">Dashboard</button>
-        <button class="nav-button">Active</button>
-        <button class="nav-button">Completed</button>
+        <button class="nav-button" @click="filterStatus = 'All'">
+          Dashboard
+        </button>
+        <button class="nav-button" @click="filterStatus = 'Active'">
+          Active
+        </button>
+        <button class="nav-button" @click="filterStatus = 'Completed'">
+          Completed
+        </button>
       </nav>
     </aside>
 
@@ -45,7 +51,7 @@
         <!-- Task List -->
         <div class="task-list">
           <div
-            v-for="(task, index) in tasks"
+            v-for="(task, index) in filteredTasks"
             :key="index"
             class="task-item"
             :class="{ checked: task.checked }"
@@ -75,7 +81,20 @@ export default {
         { text: "Prepare Presentations", checked: false },
         // ... other tasks
       ],
+      filterStatus: "All", // 可能的值还有 "Active" 和 "Completed"
     };
+  },
+  computed: {
+    filteredTasks() {
+      switch (this.filterStatus) {
+        case "Active":
+          return this.tasks.filter((task) => !task.checked);
+        case "Completed":
+          return this.tasks.filter((task) => task.checked);
+        default:
+          return this.tasks;
+      }
+    },
   },
 };
 </script>
@@ -224,7 +243,6 @@ h1 {
   padding: 20px;
   width: 90%;
   height: 25%;
-  // margin-top: 4rem; /* Adjust for space below the top bar */
   margin-left: 4rem; /* Space from the sidebar */
   margin-bottom: 5%;
   align-content: center;
