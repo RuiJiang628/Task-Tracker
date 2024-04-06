@@ -40,7 +40,6 @@
       <button class="sign-out-button">
         Sign out
         <span class="icon-logout"></span>
-        <!-- Use an appropriate icon here -->
       </button>
 
       <!-- Greeting Section -->
@@ -63,8 +62,8 @@
         <!-- Task List -->
         <div class="task-list">
           <div
-            v-for="(task, index) in filteredTasks"
-            :key="index"
+            v-for="task in filteredTasks"
+            :key="task.id"
             class="task-item"
             :class="{ checked: task.checked }"
           >
@@ -88,9 +87,9 @@ export default {
   data() {
     return {
       tasks: [
-        { text: "Buy monthly groceries", checked: false },
-        { text: "Get nails and hair done", checked: false },
-        { text: "Prepare Presentations", checked: false },
+        { id: 1, text: "Buy monthly groceries", checked: false },
+        { id: 2, text: "Get nails and hair done", checked: false },
+        { id: 3, text: "Prepare Presentations", checked: false },
       ],
       filterStatus: "All",
     };
