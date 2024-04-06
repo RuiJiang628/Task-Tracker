@@ -4,10 +4,28 @@
     <aside class="sidebar">
       <h1>Task Tracker</h1>
       <div class="add-task">
-        <button class="add-task-button">
+        <button class="add-task-button" @click="showModal = true">
           Add Task
           <span class="icon-circle">+</span>
         </button>
+      </div>
+
+      <!-- Modal Window -->
+      <div v-if="showModal" class="modal">
+        <div class="modal-content">
+          <input type="text" placeholder="Add title" v-model="newTaskTitle" />
+          <textarea
+            placeholder="Add description"
+            v-model="newTaskDescription"
+          ></textarea>
+
+          <div class="modal-actions">
+            <button class="cancel-button" @click="showModal = false">
+              Cancel
+            </button>
+            <button class="save-button" @click="addTask">Save</button>
+          </div>
+        </div>
       </div>
       <nav class="navigation">
         <button
@@ -86,6 +104,9 @@
 export default {
   data() {
     return {
+      showModal: false,
+      newTaskTitle: "",
+      newTaskDescription: "",
       tasks: [
         { id: 1, text: "Buy monthly groceries", checked: false },
         { id: 2, text: "Get nails and hair done", checked: false },
@@ -93,6 +114,19 @@ export default {
       ],
       filterStatus: "All",
     };
+  },
+  methods: {
+    addTask() {
+      const newTask = {
+        title: this.newTaskTitle,
+        description: this.newTaskDescription,
+        checked: false,
+      };
+      this.tasks.push(newTask);
+      this.showModal = false;
+      this.newTaskTitle = "";
+      this.newTaskDescription = "";
+    },
   },
   computed: {
     filteredTasks() {
@@ -120,8 +154,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-/* Your CSS styles to match the new UI design */
-
 .task-tracker-container {
   display: flex;
   flex-direction: row;
@@ -307,7 +339,6 @@ h1 {
   .delete-all-button {
     background: none;
     border: none;
-    width: 6vw;
     height: 2vh;
     font-family: "Lexend";
     font-style: normal;
@@ -380,5 +411,70 @@ h1 {
       box-shadow: none; // Assuming no shadow in the checked state
     }
   }
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px; /* Adjust width as per your requirement */
+}
+
+input[type="text"],
+textarea {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Full width of the modal-content */
+  padding: 12px; /* Padding inside the input */
+  margin-bottom: 16px; /* Space between inputs */
+  border: none;
+  border-radius: 12px; /* Slightly rounded corners */
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  font-size: 1em; /* Larger font size */
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 10px; /* Space between buttons */
+}
+
+.cancel-button {
+  display: flex;
+  flex-direction: row;
+  padding: 8px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  color: black;
+  background-color: #ffffff;
+  border: 2px solid #edb046;
+}
+
+.save-button {
+  display: flex;
+  flex-direction: row;
+  padding: 8px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  color: black;
+  background-color: #f0ad4e;
+  border: none;
 }
 </style>
