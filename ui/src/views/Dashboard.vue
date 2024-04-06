@@ -10,13 +10,25 @@
         </button>
       </div>
       <nav class="navigation">
-        <button class="nav-button" @click="filterStatus = 'All'">
+        <button
+          class="nav-button"
+          :class="{ active: filterStatus === 'All' }"
+          @click="filterStatus = 'All'"
+        >
           Dashboard
         </button>
-        <button class="nav-button" @click="filterStatus = 'Active'">
+        <button
+          class="nav-button"
+          :class="{ active: filterStatus === 'Active' }"
+          @click="filterStatus = 'Active'"
+        >
           Active
         </button>
-        <button class="nav-button" @click="filterStatus = 'Completed'">
+        <button
+          class="nav-button"
+          :class="{ active: filterStatus === 'Completed' }"
+          @click="filterStatus = 'Completed'"
+        >
           Completed
         </button>
       </nav>
@@ -79,9 +91,8 @@ export default {
         { text: "Buy monthly groceries", checked: false },
         { text: "Get nails and hair done", checked: false },
         { text: "Prepare Presentations", checked: false },
-        // ... other tasks
       ],
-      filterStatus: "All", // 可能的值还有 "Active" 和 "Completed"
+      filterStatus: "All",
     };
   },
   computed: {
