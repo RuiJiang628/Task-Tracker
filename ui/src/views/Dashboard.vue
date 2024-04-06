@@ -184,8 +184,8 @@ h1 {
     display: flex; /* Enables center alignment for the plus */
     align-items: center; /* Centers the plus vertically */
     justify-content: center; /* Centers the plus horizontally */
-    width: 36px; /* Width of the circle */
-    height: 36px; /* Height of the circle */
+    width: 25px; /* Width of the circle */
+    height: 25px; /* Height of the circle */
     margin-left: auto; /* Pushes the circle to the right */
   }
 }
