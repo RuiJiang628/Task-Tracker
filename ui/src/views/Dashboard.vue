@@ -54,7 +54,7 @@
       <section class="task-section">
         <!-- Task Header -->
         <header class="task-header">
-          <h2>Today's Tasks</h2>
+          <h2>{{ taskHeaderTitle }}</h2>
           <div>
             <button class="delete-all-button">Delete All</button>
           </div>
@@ -104,6 +104,16 @@ export default {
           return this.tasks.filter((task) => task.checked);
         default:
           return this.tasks;
+      }
+    },
+    taskHeaderTitle() {
+      switch (this.filterStatus) {
+        case "Active":
+          return "Today's Active Tasks";
+        case "Completed":
+          return "Today's Completed Tasks";
+        default:
+          return "Today's Tasks";
       }
     },
   },
