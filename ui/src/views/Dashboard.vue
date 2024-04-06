@@ -36,6 +36,7 @@
 
     <!-- Main content area -->
     <div class="main-content">
+      <button class="profile-button"></button>
       <!-- Sign out button -->
       <button class="sign-out-button">
         Sign out
@@ -187,6 +188,23 @@ h1 {
     height: 25px; /* Height of the circle */
     margin-left: auto; /* Pushes the circle to the right */
   }
+}
+
+.profile-button {
+  background-image: url('../assets/profile.png'); /* 使用Webpack解析路径 */
+  background-size: contain; /* 或者使用 contain，视乎您想要的效果 */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  display: flex;
+  position: fixed;
+  top: 1.75vw; /* 与 sign-out 按钮相同的垂直位置 */
+  left: 78vw; /* 根据需要调整，使得头像与 sign-out 按钮水平对齐 */
+  width: 7vw; /* 根据图像的实际尺寸调整 */
+  height: 6vh; /* 根据图像的实际尺寸调整 */
+  border: none; /* 移除边框 */
+  cursor: pointer; /* 鼠标悬停时的指针样式 */
+  border-radius: 50%; /* 使按钮成为圆形 */
 }
 
 .sign-out-button {
