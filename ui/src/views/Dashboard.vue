@@ -538,14 +538,14 @@ h1 {
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #ffffff; /* 默认背景色 */
-      border: 2px solid #edb046; /* 边框颜色 */
+      background-color: #ffffff;
+      border: 2px solid #edb046;
       border-radius: 50%;
       z-index: 0;
     }
 
     .custom-checkbox input[type="checkbox"]:checked ~ .checkbox-style {
-      background-color: #ba5112; /* 选中时的背景色 */
+      background-color: #ba5112;
     }
 
     .task-text {
@@ -629,7 +629,7 @@ textarea {
   cursor: pointer;
   font-size: 1em;
   color: white;
-  background-color: #d9534f; /* 通常用于删除按钮的颜色 */
+  background-color: #d9534f;
   border: none;
   margin-right: auto; /* 将删除按钮推向左侧 */
 }
@@ -659,8 +659,8 @@ textarea {
 }
 
 .button-disabled {
-  background-color: #cccccc; /* 灰色背景 */
-  color: #666666; /* 深灰色文本 */
+  background-color: #cccccc;
+  color: #666666;
   cursor: not-allowed; /* 禁止光标图标 */
   /* 确保按钮在禁用状态下看起来不是互动的 */
   pointer-events: none;
