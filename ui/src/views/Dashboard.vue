@@ -253,13 +253,13 @@ export default {
 }
 
 .task-tracker-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('../assets/background.png');
+  background-image: url("../assets/background.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -332,7 +332,7 @@ h1 {
 }
 
 .profile-button {
-  background-image: url('../assets/profile.png'); /* 使用Webpack解析路径 */
+  background-image: url("../assets/profile.png"); /* 使用Webpack解析路径 */
   background-size: contain; /* 或者使用 contain，视乎您想要的效果 */
   background-position: center;
   background-repeat: no-repeat;
@@ -341,7 +341,7 @@ h1 {
   position: fixed;
   top: 1.75vw; /* 与 sign-out 按钮相同的垂直位置 */
   left: 78vw; /* 根据需要调整，使得头像与 sign-out 按钮水平对齐 */
-  width: 7vw; /* 根据图像的实际尺寸调整 */
+  width: 6vw; /* 根据图像的实际尺寸调整 */
   height: 6vh; /* 根据图像的实际尺寸调整 */
   border: none; /* 移除边框 */
   cursor: pointer; /* 鼠标悬停时的指针样式 */
