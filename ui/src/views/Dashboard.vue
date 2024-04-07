@@ -431,6 +431,7 @@ h1 {
     flex-direction: column;
 
     .task-item {
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 10px;
