@@ -333,56 +333,78 @@ h1 {
 }
 
 .profile-button {
-  background-image: url("../assets/profile.png"); /* 使用Webpack解析路径 */
-  background-size: contain; /* 或者使用 contain，视乎您想要的效果 */
+  background-image: url("../assets/profile.png");
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   background-color: transparent;
   display: flex;
   position: fixed;
-  top: 1.75vw; /* 与 sign-out 按钮相同的垂直位置 */
-  left: 78vw; /* 根据需要调整，使得头像与 sign-out 按钮水平对齐 */
-  width: 6vw; /* 根据图像的实际尺寸调整 */
-  height: 6vh; /* 根据图像的实际尺寸调整 */
-  border: none; /* 移除边框 */
-  cursor: pointer; /* 鼠标悬停时的指针样式 */
-  border-radius: 50%; /* 使按钮成为圆形 */
+  top: 2vw; // 顶部的位置可以使用 vw 单位保持响应性
+  right: 12rem; // 保持距离 sign-out 按钮适当的距离
+  width: 2.5rem; // 使用 rem 单位
+  height: 2.5rem; // 使用 rem 单位
+  border: none;
+  cursor: pointer;
+  border-radius: 50%; // 圆形按钮
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  .profile-button {
+    top: 1rem; // 减小顶部距离
+    right: 7rem; // 减小右侧距离
+    width: 2rem; // 减小宽度
+    height: 2rem; // 减小高度
+  }
 }
 
 .sign-out-button {
   display: flex;
   position: fixed;
-  top: 2vw;
-  left: 85vw;
-  flex-direction: row; /* Align the text and icon in a row */
-  align-items: center; /* Vertically center the text and icon */
-  justify-content: center; /* Horizontally center the text */
-  padding: 16px 24px; /* Padding inside the button */
+  top: 2vw; // 这里使用了视口宽度单位，可以根据屏幕大小进行调整
+  left: auto; // 改为 auto，使按钮能够基于右侧对齐
+  right: 2rem; // 保持按钮相对于屏幕右侧有一定的距离
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem; // 使用 rem 单位，它们基于根元素的字体大小进行缩放
   font-family: "Lexend";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 20px;
-  background-color: #ba5112; /* Button background color */
-  border: none; /* No border */
-  color: #ffffff; /* Text color */
-  border-radius: 8px; /* Rounded corners for the button */
-  cursor: pointer; /* Change the cursor on hover */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  outline: none; /* Removes the outline */
-  white-space: nowrap; /* Prevents wrapping */
-  gap: 1vw; /* Gap between the text and the icon */
-  width: 10vw;
-  height: 5vh;
+  font-size: 1rem; // 使用 rem 单位以响应不同的屏幕尺寸
+  background-color: #ba5112;
+  border: none;
+  color: #ffffff;
+  border-radius: 0.5rem; // 使用 rem 单位保持一致性
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  outline: none;
+  gap: 0.5rem; // 使用 rem 单位
+  white-space: nowrap; // 防止文本换行
+}
+
+@media (max-width: 600px) {
+  .sign-out-button {
+    top: 1rem; // 对于小屏幕，减小顶部距离
+    font-size: 0.8rem; // 对于小屏幕，减小字体大小
+    padding: 0.5rem; // 减小内边距
+    gap: 0.3rem; // 减小图标和文本之间的距离
+  }
 }
 
 .icon-logout {
-  background-image: url("../assets/logout-icon.png"); /* Path to your logout icon */
-  background-repeat: no-repeat;
-  background-position: center;
+  display: inline-block; // 使图标能够与文本在同一行显示
   background-size: contain;
-  width: 5vw; /* Width of the icon */
-  height: 5vh; /* Height of the icon */
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 1rem; // 使用 rem 单位
+  height: 1rem; // 使用 rem 单位
+  background-image: url("../assets/logout-icon.png");
+}
+
+@media (max-width: 600px) {
+  .icon-logout {
+    display: none;
+  }
 }
 
 .navigation {
