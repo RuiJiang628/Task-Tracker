@@ -3,11 +3,28 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <h1>Task Tracker</h1>
+
       <div class="add-task">
         <button class="add-task-button" @click="showModal = true">
           Add Task
           <span class="icon-circle">+</span>
         </button>
+      </div>
+
+      <!-- Edit Task Modal -->
+      <!-- This should be placed after the 'Add Task' modal -->
+      <div v-if="showEditModal" class="modal" @click.self="closeEditModal">
+        <div class="modal-content" @click.stop>
+          <!-- Use the selectedTask for binding the inputs -->
+          <input type="text" v-model="selectedTask.text" />
+          <textarea v-model="selectedTask.description"></textarea>
+          <div class="modal-actions">
+            <button class="cancel-button" @click="showEditModal = false">
+              Cancel
+            </button>
+            <button class="save-button" @click="saveTaskEdits">Save</button>
+          </div>
+        </div>
       </div>
 
       <!-- Modal Window -->
@@ -27,6 +44,7 @@
           </div>
         </div>
       </div>
+
       <nav class="navigation">
         <button
           class="nav-button"
@@ -84,10 +102,11 @@
             :key="task.id"
             class="task-item"
             :class="{ checked: task.checked }"
+            @click="selectTask(task)"
           >
             <!-- Custom Checkbox -->
-            <label class="custom-checkbox">
-              <input type="checkbox" v-model="task.checked" />
+            <label class="custom-checkbox" @click.stop>
+              <input type="checkbox" v-model="task.checked" @click.stop />
               <span class="checkbox-style"></span>
             </label>
 
@@ -104,28 +123,67 @@
 export default {
   data() {
     return {
+      selectedTask: null,
+      showEditModal: false,
       showModal: false,
       newTaskTitle: "",
       newTaskDescription: "",
       tasks: [
-        { id: 1, text: "Buy monthly groceries", checked: false },
-        { id: 2, text: "Get nails and hair done", checked: false },
-        { id: 3, text: "Prepare Presentations", checked: false },
+        {
+          id: 1,
+          text: "Buy monthly groceries",
+          description: "Milk, Bread, Eggs",
+          checked: false,
+        },
+        {
+          id: 2,
+          text: "Get nails and hair done",
+          description: "",
+          checked: false,
+        },
+        {
+          id: 3,
+          text: "Prepare Presentations",
+          description: "",
+          checked: false,
+        },
       ],
       filterStatus: "All",
     };
   },
   methods: {
     addTask() {
+      const newTaskId =
+        this.tasks.reduce((maxId, task) => Math.max(maxId, task.id), 0) + 1;
       const newTask = {
-        title: this.newTaskTitle,
-        description: this.newTaskDescription,
+        id: newTaskId,
+        text: this.newTaskTitle, // Use `text` instead of `title`
+        description: this.newTaskDescription, // Make sure `description` is used
         checked: false,
       };
       this.tasks.push(newTask);
-      this.showModal = false;
       this.newTaskTitle = "";
       this.newTaskDescription = "";
+      this.showModal = false;
+    },
+    selectTask(task) {
+      this.selectedTask = { ...task };
+      this.showEditModal = true;
+    },
+    closeEditModal() {
+      this.showEditModal = false;
+    },
+    saveTaskEdits() {
+      const index = this.tasks.findIndex((t) => t.id === this.selectedTask.id);
+      if (index !== -1) {
+        this.tasks[index] = {
+          ...this.tasks[index],
+          text: this.selectedTask.text || this.tasks[index].text,
+          description:
+            this.selectedTask.description || this.tasks[index].description,
+        };
+      }
+      this.closeEditModal();
     },
   },
   computed: {
