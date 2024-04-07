@@ -15,8 +15,15 @@
       <div v-if="showEditModal" class="modal" @click.self="closeEditModal">
         <div class="modal-content" @click.stop>
           <!-- Use the selectedTask for binding the inputs -->
-          <input type="text" v-model="selectedTask.text" />
-          <textarea v-model="selectedTask.description"></textarea>
+          <input
+            type="text"
+            placeholder="Add title"
+            v-model="selectedTask.text"
+          />
+          <textarea
+            placeholder="Add description"
+            v-model="selectedTask.description"
+          ></textarea>
           <div class="modal-footer">
             <button class="delete-button" @click="deleteTask(selectedTask.id)">
               Delete
