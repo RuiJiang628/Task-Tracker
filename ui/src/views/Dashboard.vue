@@ -156,24 +156,48 @@ export default {
 
 <style scoped lang="scss">
 .task-tracker-container {
+  position: relative;
   display: flex;
   flex-direction: row;
   height: 100vh;
   width: 100vw;
   margin: 0;
   padding: 0;
+  overflow: hidden; /* 确保伪元素不会超出容器范围 */
+}
+
+.task-tracker-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../assets/background.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 0.7; /* 这里设置背景图片的透明度 */
+  z-index: -1; /* 确保背景图片在内容之下 */
+}
+
+/* 确保其他内容在背景之上 */
+.task-tracker-container > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar {
   width: 20vw;
   height: 100vh;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: start;
   padding: 1vw 0;
   box-sizing: border-box;
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 h1 {
