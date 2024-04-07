@@ -263,7 +263,6 @@ export default {
 /* 确保其他内容在背景之上 */
 .task-tracker-container > * {
   position: relative;
-  z-index: 1;
 }
 
 .sidebar {
