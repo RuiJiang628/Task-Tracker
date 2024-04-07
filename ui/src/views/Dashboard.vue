@@ -286,6 +286,7 @@ export default {
 }
 
 h1 {
+  cursor: pointer;
   font-size: 2vw;
   line-height: 4vw;
   color: #ba5112;
