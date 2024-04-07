@@ -598,6 +598,7 @@ textarea {
   background-color: #cccccc; /* 灰色背景 */
   color: #666666; /* 深灰色文本 */
   cursor: not-allowed; /* 禁止光标图标 */
+  /* 确保按钮在禁用状态下看起来不是互动的 */
   pointer-events: none;
 }
 </style>
