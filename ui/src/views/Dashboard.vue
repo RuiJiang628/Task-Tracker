@@ -11,23 +11,27 @@
         </button>
       </div>
 
-      <!-- Edit Task Modal -->
-      <!-- This should be placed after the 'Add Task' modal -->
+      <!-- Edit Task Modal Window-->
       <div v-if="showEditModal" class="modal" @click.self="closeEditModal">
         <div class="modal-content" @click.stop>
           <!-- Use the selectedTask for binding the inputs -->
           <input type="text" v-model="selectedTask.text" />
           <textarea v-model="selectedTask.description"></textarea>
-          <div class="modal-actions">
-            <button class="cancel-button" @click="showEditModal = false">
-              Cancel
+          <div class="modal-footer">
+            <button class="delete-button" @click="deleteTask(selectedTask.id)">
+              Delete
             </button>
-            <button class="save-button" @click="saveTaskEdits">Save</button>
+            <div class="modal-actions">
+              <button class="cancel-button" @click="showEditModal = false">
+                Cancel
+              </button>
+              <button class="save-button" @click="saveTaskEdits">Save</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Modal Window -->
+      <!-- Add Task Modal Window -->
       <div v-if="showModal" class="modal">
         <div class="modal-content">
           <input type="text" placeholder="Add title" v-model="newTaskTitle" />
@@ -35,12 +39,18 @@
             placeholder="Add description"
             v-model="newTaskDescription"
           ></textarea>
-
-          <div class="modal-actions">
+          <div class="add-modal-actions">
             <button class="cancel-button" @click="showModal = false">
               Cancel
             </button>
-            <button class="save-button" @click="addTask">Save</button>
+            <button
+              class="save-button"
+              @click="addTask"
+              :disabled="!canSaveNewTask"
+              :class="{ 'button-disabled': !canSaveNewTask }"
+            >
+              Save
+            </button>
           </div>
         </div>
       </div>
@@ -153,6 +163,10 @@ export default {
   },
   methods: {
     addTask() {
+      if (!this.newTaskTitle.trim()) {
+        alert("Task title cannot be empty."); // 或者使用更友好的用户通知方式
+        return;
+      }
       const newTaskId =
         this.tasks.reduce((maxId, task) => Math.max(maxId, task.id), 0) + 1;
       const newTask = {
@@ -185,6 +199,10 @@ export default {
       }
       this.closeEditModal();
     },
+    deleteTask(taskId) {
+      this.tasks = this.tasks.filter((task) => task.id !== taskId);
+      this.closeEditModal(); // 删除任务后关闭模态框
+    },
   },
   computed: {
     filteredTasks() {
@@ -206,6 +224,9 @@ export default {
         default:
           return "Today's Tasks";
       }
+    },
+    canSaveNewTask() {
+      return this.newTaskTitle.trim().length > 0;
     },
   },
 };
@@ -485,6 +506,8 @@ h1 {
 }
 
 .modal-content {
+  display: flex;
+  flex-direction: column;
   background: white;
   padding: 20px;
   border: none;
@@ -507,10 +530,36 @@ textarea {
   font-size: 1em; /* Larger font size */
 }
 
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-top: none;
+  padding: 20px 0;
+}
+
 .modal-actions {
   display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  gap: 10px; /* Space between buttons */
+  gap: 10px; /* 按钮之间的空间 */
+  justify-content: flex-end;
+}
+
+.add-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 0;
+}
+
+.delete-button {
+  padding: 8px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  color: white;
+  background-color: #d9534f; /* 通常用于删除按钮的颜色 */
+  border: none;
+  margin-right: auto; /* 将删除按钮推向左侧 */
 }
 
 .cancel-button {
@@ -532,8 +581,16 @@ textarea {
   border-radius: 12px;
   cursor: pointer;
   font-size: 1em;
-  color: black;
-  background-color: #f0ad4e;
+  color: white;
+  background-color: #edb046;
   border: none;
+}
+
+.button-disabled {
+  background-color: #cccccc; /* 灰色背景 */
+  color: #666666; /* 深灰色文本 */
+  cursor: not-allowed; /* 禁止光标图标 */
+  /* 确保按钮在禁用状态下看起来不是互动的 */
+  pointer-events: none;
 }
 </style>
