@@ -2,12 +2,20 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import pino from 'pino'
 import expressPinoLogger from 'express-pino-logger'
+import { Collection, Db, MongoClient, ObjectId } from 'mongodb'
+import { Customer, CustomerWithOrders, DraftOrder, Operator, OperatorWithOrders, Order, possibleIngredients } from './data'
 
-import { addParticipantToList, addList, deleteParticipantOnList, deleteList, getList, getLists, updateParticipantOnList, load, save } from "./data"
+// set up Mongo
+const url = 'mongodb://127.0.0.1:27017'
+const client = new MongoClient(url)
+let db: Db
+let customers: Collection<Customer>
+let orders: Collection<Order>
+let operators: Collection<Operator>
 
 // set up Express
 const app = express()
-const port = 8081
+const port = parseInt(process.env.PORT) || 8131
 app.use(bodyParser.json())
 
 // set up Pino logging
@@ -18,84 +26,148 @@ const logger = pino({
 })
 app.use(expressPinoLogger({ logger }))
 
-load()
-
 // app routes
-app.get("/api/lists", (req, res) => {
-  res.status(200).json(getLists())
+app.get("/api/possible-ingredients", (req, res) => {
+  res.status(200).json(possibleIngredients)
 })
 
-app.get("/api/list/:listId/participants", (req, res) => {
-  const list = getList(req.params.listId)
-  if (!list) {
-    res.status(404).json({ status: "error" })
-    return
-  }
-  res.status(200).json(list)
+app.get("/api/orders", async (req, res) => {
+  res.status(200).json(await orders.find({ state: { $ne: "draft" }}).toArray())
 })
 
-app.post("/api/new-list", (req, res) => {
-  if (typeof req.body?.name !== "string" || getList(req.body?.name)) {
-    res.status(400).json({ status: "error" })
+app.get("/api/customer/:customerId", async (req, res) => {
+  const _id = req.params.customerId
+  const customer: Partial<CustomerWithOrders> | null = await customers.findOne({ _id })
+  if (customer == null) {
+    res.status(404).json({ _id })
     return
   }
-  const listId = addList(req.body.name)
-  res.status(200).json({ listId })
+  customer.orders = await orders.find({ customerId: _id, state: { $ne: "draft" } }).toArray()
+  res.status(200).json(customer)
 })
 
-app.post("/api/list/:listId/new-participant", (req, res) => {
-  if (typeof req.body?.name !== "string") {
-    res.status(400).json({ status: "error" })
+app.get("/api/operator/:operatorId", async (req, res) => {
+  const _id = req.params.operatorId
+  const operator: Partial<OperatorWithOrders> | null = await operators.findOne({ _id })
+  if (operator == null) {
+    res.status(404).json({ _id })
     return
   }
-  const participantId = addParticipantToList(
-    req.params.listId, 
-    { 
-      name: req.body.name,
-      reviewed: false
+  operator.orders = await orders.find({ operatorId: _id }).toArray()
+  res.status(200).json(operator)
+})
+
+app.get("/api/customer/:customerId/draft-order", async (req, res) => {
+  const { customerId } = req.params
+
+  // TODO: validate customerId
+
+  const draftOrder = await orders.findOne({ state: "draft", customerId })
+  res.status(200).json(draftOrder || { customerId, ingredients: [] })
+})
+
+app.put("/api/customer/:customerId/draft-order", async (req, res) => {
+  const order: DraftOrder = req.body
+
+  // TODO: validate customerId
+
+  const result = await orders.updateOne(
+    {
+      customerId: req.params.customerId,
+      state: "draft",
+    },
+    {
+      $set: {
+        ingredients: order.ingredients
+      }
+    },
+    {
+      upsert: true
+    }
+    // upsert: if no document matches the query, insert a new document
+  )
+  res.status(200).json({ status: "ok" })
+})
+
+// find a draft order for a customer and change to queued
+app.post("/api/customer/:customerId/submit-draft-order", async (req, res) => {
+  const result = await orders.updateOne(
+    {
+      customerId: req.params.customerId,
+      state: "draft",
+    },
+    // at most 1 draft order per customer
+    {
+      $set: {
+        state: "queued",
+      }
+      // $set: take an existing document and sets key value pairs
     }
   )
-  if (participantId == null) {
-    res.status(404).json({ status: "error" })
+  if (result.modifiedCount === 0) {
+    res.status(400).json({ error: "no draft order" })
     return
   }
-  res.status(200).json({ participantId })
+  res.status(200).json({ status: "ok" })
 })
 
-app.put("/api/list/:listId/participant/:participantId", (req, res) => {
-  const update = {
-    // name: req.body?.name,
-    reviewed: req.body?.reviewed,
+app.put("/api/order/:orderId", async (req, res) => {
+  const order: Order = req.body
+
+  // TODO: validate order object
+
+  const condition: any = {
+    _id: new ObjectId(req.params.orderId),
+    state: { 
+      $in: [
+        // because PUT is idempotent, ok to call PUT twice in a row with the existing state
+        order.state
+      ]
+    },
   }
-  if (typeof update.reviewed !== "boolean") {
-    res.status(400).json({ status: "error" })
+  switch (order.state) {
+    case "blending":
+      condition.state.$in.push("queued")
+      // can only go to blending state if no operator assigned (or is the current user, due to idempotency)
+      condition.$or = [{ operatorId: { $exists: false }}, { operatorId: order.operatorId }]
+      break
+    case "done":
+      condition.state.$in.push("blending")
+      condition.operatorId = order.operatorId
+      break
+    default:
+      // invalid state
+      res.status(400).json({ error: "invalid state" })
+      return
+  }
+  
+  const result = await orders.updateOne(
+    condition,
+    {
+      $set: {
+        state: order.state,
+        operatorId: order.operatorId,
+      }
+    }
+  )
+
+  if (result.matchedCount === 0) {
+    res.status(400).json({ error: "orderId does not exist or state change not allowed" })
     return
   }
-  const updatedCount = updateParticipantOnList(req.params.listId, req.params.participantId, update)
-  if (updatedCount === 0) {
-    res.status(404).json({ status: "error" })
-    return
-  }
-  res.status(200).json({ updatedCount })
+  res.status(200).json({ status: "ok" })
 })
 
-app.delete("/api/list/:listId", (req, res) => {
-  if (deleteList(req.params.listId)) {
-    res.status(200).json({ status: "ok" })
-  } else {
-    res.status(404).json({ status: "error" })
-  }
-})
+// connect to Mongo
+client.connect().then(() => {
+  console.log('Connected successfully to MongoDB')
+  db = client.db("test")
+  operators = db.collection('operators')
+  orders = db.collection('orders')
+  customers = db.collection('customers')
 
-app.delete("/api/list/:listId/participant/:participantId", (req, res) => {
-  if (deleteParticipantOnList(req.params.listId, req.params.participantId)) {
-    res.status(200).json({ status: "ok" })
-  } else {
-    res.status(404).json({ status: "error" })
-  }
-})
-
-// start server
-app.listen(port, () => {
-  console.log(`Signup list server listening on port ${port}`)
+  // start server
+  app.listen(port, () => {
+    console.log(`Smoothie server listening on port ${port}`)
+  })
 })
