@@ -472,7 +472,7 @@ h1 {
 .task-section {
   background: #fff;
   border-radius: 5px;
-  margin-left: 5vw;
+  margin-left: 4rem;
   width: 90%;
 
   .task-header {
