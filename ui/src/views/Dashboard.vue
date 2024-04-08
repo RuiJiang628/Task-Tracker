@@ -89,13 +89,23 @@
 
     <!-- Main content area -->
     <div class="main-content">
-      <button class="profile-button"></button>
-      <!-- Sign out button -->
-      <button class="sign-out-button">
+      <button v-if="isLoggedIn" class="profile-button"></button>
+        <!-- Sign out button -->
+        <button
+        v-if="isLoggedIn"
+        class="sign-out-button"
+        @click="logout"
+      >
         Sign out
         <span class="icon-logout"></span>
       </button>
-
+      <button
+        v-else
+        class="sign-out-button"
+        @click="login"
+      >
+        Sign in
+      </button>
       <!-- Greeting Section -->
       <div class="greeting-section">
         <h2>Hello, Ray!</h2>
@@ -141,6 +151,7 @@
 export default {
   data() {
     return {
+      isLoggedIn: false, // This will track the login status
       selectedTask: null,
       showEditModal: false,
       showModal: false,
@@ -211,6 +222,15 @@ export default {
       this.tasks = this.tasks.filter((task) => task.id !== taskId);
       this.closeEditModal(); // 删除任务后关闭模态框
     },
+
+    login() {
+      // Simulate login process
+      this.isLoggedIn = true;
+    },
+    logout() {
+      // Simulate logout process
+      this.isLoggedIn = false;
+    }
   },
   computed: {
     filteredTasks() {
