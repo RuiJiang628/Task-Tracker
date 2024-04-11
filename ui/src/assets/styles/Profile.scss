@@ -6,7 +6,7 @@
     width: 100vw;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* 确保伪元素不会超出容器范围 */
+    overflow: hidden;
   }
   
 .task-tracker-container::before {
@@ -20,8 +20,8 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
-    opacity: 0.7; /* 这里设置背景图片的透明度 */
-    z-index: -1; /* 确保背景图片在内容之下 */
+    opacity: 0.7;
+    z-index: -1;
 }
 
 .sidebar {
@@ -87,7 +87,7 @@ h1 {
         margin-bottom: 1rem;
         font-family: "Lexend";
         right: 2rem;
-        white-space: nowrap; // 防止文本换行
+        white-space: nowrap;
     }
 
     label {
@@ -148,12 +148,12 @@ h1 {
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
-        width: 1rem; // 使用 rem 单位
+        width: 1rem; 
         height: 1rem;
     }
 
     @media (max-width: 600px) {
-        top: 1rem; // 对于小屏幕，减小顶部距离
+        top: 1rem; 
     }
 }
 
@@ -177,12 +177,12 @@ h1 {
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
-        width: 1rem; // 使用 rem 单位
+        width: 1rem; 
         height: 1rem;
     }
     @media (max-width: 600px) {
             right: 7rem;
-            top: 1rem; // 对于小屏幕，减小顶部距离
+            top: 1rem; 
         }
 }
 
