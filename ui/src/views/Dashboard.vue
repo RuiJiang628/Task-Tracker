@@ -148,6 +148,11 @@
 </template>
 
 <script>
+
+import io from 'socket.io-client';
+import { ref } from 'vue';
+
+const socket = io();
 export default {
   data() {
     return {
@@ -225,6 +230,7 @@ export default {
 
     login() {
       // Simulate login process
+      this.socket.emit('request-oidc-auth-url');
       this.isLoggedIn = true;
     },
     logout() {
