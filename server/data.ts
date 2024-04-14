@@ -1,30 +1,18 @@
-export const possibleIngredients = [
-  "strawberry",
-  "milk",
-  "banana",
-]
-
-export interface DraftOrder {
-  customerId: string
-  ingredients: string[]
+export interface Task {
+  taskID: string
+  title: string
+  description: string
+  checked: boolean
 }
 
-export interface Order extends DraftOrder {
+export interface User {
   _id: string
-  state: "draft" | "queued" | "blending" | "done"
-  operatorId?: string
+  userName: string
+  email: string
+  gender: 'male' | 'female' | 'other' | null
+  birthDate: Date | null
+  tasks: Task[]
 }
 
-export interface Customer {
-  _id: string
-  name: string
-}
-
-export interface CustomerWithOrders extends Customer {
-  orders: Order[]
-}
-
-export interface Operator {
-  _id: string
-  name: string
+export interface AdminUser extends User {
 }

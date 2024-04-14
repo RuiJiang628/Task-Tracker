@@ -38,10 +38,13 @@
           <input id="email" type="email" v-model="profile.email">
         </div>
 
-        <!-- Password Field -->
         <div class="input-group">
-          <label for="password">Password</label>
-          <input id="password" type="password" v-model="profile.password">
+          <label for="gender">Gender</label>
+          <select id="gender" v-model="profile.gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         <!-- Birthday Field -->
@@ -68,8 +71,8 @@ export default {
       profile: {
         username: 'Ray',
         email: '123@123.com',
-        password: '********',
-        birthday: '2003-12-21'
+        gender: '',
+        birthday: ''
       }
     };
   },
