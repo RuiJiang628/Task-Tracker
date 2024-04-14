@@ -10,6 +10,7 @@ import passport from 'passport'
 import { Strategy as CustomStrategy } from "passport-custom"
 import cors from 'cors'
 import { gitlab } from './secrets'
+import { Task, User, AdminUser} from './data'
 
 const HOST = process.env.HOST || "127.0.0.1"
 const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
@@ -18,7 +19,6 @@ const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
 const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
 const client = new MongoClient(mongoUrl)
 let db: Db
-let orders: Collection
 
 // set up Express
 const app = express()
@@ -80,8 +80,7 @@ app.get('/api/login-callback', passport.authenticate('oidc', {
 // connect to Mongo
 client.connect().then(async () => {
   logger.info('connected successfully to MongoDB')
-  db = client.db("test")
-  orders = db.collection('orders')
+  db = client.db("task_tracker")
 
   if (DISABLE_SECURITY) {
     passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, roles: req.query.role })))
@@ -100,10 +99,33 @@ client.connect().then(async () => {
     }
 
     async function verify(tokenSet: any, userInfo: any, done: any) {
-      logger.info("oidc " + JSON.stringify(userInfo))
-      // console.log('userInfo', userInfo)
-      // userInfo.roles = userInfo.groups.includes(OPERATOR_GROUP_ID) ? ["operator"] : ["customer"]
-      return done(null, userInfo)
+      try{
+        logger.info("oidc " + JSON.stringify(userInfo))
+        // console.log('userInfo', userInfo)
+        // userInfo.roles = userInfo.groups.includes(OPERATOR_GROUP_ID) ? ["operator"] : ["customer"]
+        const existingUser = await db.collection('users').findOne({ netID: userInfo.nickname });
+        
+        if (!existingUser) {
+          const newUser: User ={
+            netID: userInfo.nickname,
+            userName: userInfo.preferred_username,
+            email: userInfo.email,
+            gender: null,  
+            birthDate: null, 
+            tasks: [] 
+          }
+          const insertResult = await db.collection('users').insertOne(newUser);
+          if (insertResult.acknowledged) {
+            logger.info('New user created with ID:', insertResult.insertedId);
+          } else {
+            logger.error('Failed to insert new user');
+          }
+        }
+        return done(null, userInfo);
+      } catch (error) {
+        logger.error('Error in OIDC verification:', error);
+        return done(error);
+      }
     }
 
     passport.use('oidc', new Strategy({ client, params }, verify))

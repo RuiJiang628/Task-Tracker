@@ -6,7 +6,6 @@ export interface Task {
 }
 
 export interface User {
-  _id: string
   netID: string
   userName: string
   email: string

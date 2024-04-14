@@ -9,7 +9,14 @@ async function main() {
         console.log('Connected successfully to MongoDB');
 
         const db = client.db("task_tracker");
+
+        db.collection("users").createIndex(
+            { netID: 1 }, 
+            { unique: true }
+          )
+
         const insertResult = await db.collection("users").insertOne({
+            "netID": "test123",
             "userName": "test user",
             "email": ""
         });
