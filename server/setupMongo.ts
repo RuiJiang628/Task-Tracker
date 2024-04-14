@@ -1,31 +1,8 @@
-import { MongoClient } from 'mongodb'
-import { Operator, Customer } from './data'
+import { MongoClient, ObjectId } from 'mongodb'
 
 // Connection URL
-const url = 'mongodb://127.0.0.1:27017'
+const url = 'mongodb://localhost:27017'
 const client = new MongoClient(url)
-
-const operators: Operator[] = [
-  {
-    _id: "jim",
-    name: "Jim",
-  },
-  {
-    _id: "mary",
-    name: "Mary",
-  },
-]
-
-const customers: Customer[] = [
-  {
-    _id: "alice",
-    name: "Alice",
-  },
-  {
-    _id: "bob",
-    name: "Bob",
-  },
-]
 
 async function main() {
   await client.connect()
@@ -38,10 +15,6 @@ async function main() {
     { customerId: 1 }, 
     { unique: true, partialFilterExpression: { state: "draft" } }
   )
-
-  // add data
-  console.log("inserting customers", await db.collection("customers").insertMany(customers as any))
-  console.log("inserting operators", await db.collection("operators").insertMany(operators as any))
 
   process.exit(0)
 }
