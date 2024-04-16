@@ -1,45 +1,45 @@
-import express, { NextFunction, Request, Response } from 'express'
-import bodyParser from 'body-parser'
-import pino from 'pino'
-import expressPinoLogger from 'express-pino-logger'
-import { Collection, Db, MongoClient, ObjectId } from 'mongodb'
-import session from 'express-session'
-import MongoStore from 'connect-mongo'
-import { Issuer, Strategy, generators } from 'openid-client'
-import passport from 'passport'
+import express from 'express';
+import { createServer } from "http"
+import bodyParser from 'body-parser';
+import pino from 'pino';
+import expressPinoLogger from 'express-pino-logger';
+import { MongoClient, Db } from 'mongodb';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import { Issuer, Strategy, generators } from 'openid-client';
+import passport from 'passport';
+import cors from 'cors';
 import { Strategy as CustomStrategy } from "passport-custom"
-import cors from 'cors'
-import { gitlab } from './secrets'
-import { Task, User, AdminUser} from './data'
+import { Server } from "socket.io";
+import { gitlab } from './secrets';
+import { User, Task } from './data';
 
-const HOST = process.env.HOST || "127.0.0.1"
-const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
 
-// set up Mongo
-const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
-const client = new MongoClient(mongoUrl)
+const HOST = process.env.HOST || "127.0.0.1";
+const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY;
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017';
+const client = new MongoClient(mongoUrl);
+const port = parseInt(process.env.PORT) || 8193;
 let db: Db
 
-// set up Express
-const app = express()
-const port = parseInt(process.env.PORT) || 8193
+const OPERATOR_GROUP_ID = "oidc-card-game"
 
-// set up body parsing for both JSON and URL encoded
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+// Express setup
+const app = express();
+const server = createServer(app)
 
-// set up Pino logging
-const logger = pino({ transport: { target: 'pino-pretty' } })
-app.use(expressPinoLogger({ logger }))
+// Middleware setup
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+const logger = pino({ 
+  transport: { 
+    target: 'pino-pretty' 
+  } 
+});
+app.use(expressPinoLogger({ logger }));
+app.use(cors({ origin: "http://127.0.0.1:8080", credentials: true }));
 
-// set up CORS
-app.use(cors({
-  origin: "http://127.0.0.1:8080",
-  credentials: true,
-}))
-
-// set up session
-app.use(session({
+const sessionMiddleware = session({
   secret: 'a just so-so secret',
   resave: false,
   saveUninitialized: true,
@@ -49,35 +49,47 @@ app.use(session({
     mongoUrl: 'mongodb://127.0.0.1:27017',
     ttl: 14 * 24 * 60 * 60 // 14 days
   })
-}))
+})
 
+app.use(sessionMiddleware)
 declare module 'express-session' {
   export interface SessionData {
     credits?: number
   }
 }
 
-app.use(passport.initialize())
-app.use(passport.session())
-passport.serializeUser((user: any, done) => {
+app.use(passport.initialize());
+app.use(passport.session());
+passport.serializeUser((user, done) => {
   console.log("serializeUser", user)
   done(null, user)
 })
 passport.deserializeUser((user: any, done) => {
-  console.log("deserializeUser", user)
   done(null, user)
 })
 
-app.get('/api/login', passport.authenticate('oidc', {
-  successReturnToOrRedirect: "/dashboard"
-}))
+// set up Socket.IO
+const io = new Server(server)
 
-app.get('/api/login-callback', passport.authenticate('oidc', {
-  successReturnToOrRedirect: "/dashboard",
-  failureRedirect: '/'
-}))
+// convert a connect middleware to a Socket.IO middleware
+const wrap = (middleware: any) => (socket: any, next: any) => middleware(socket.request, {}, next)
+io.use(wrap(sessionMiddleware))
 
-// connect to Mongo
+// // Express routes
+// app.get('/api/login', passport.authenticate('oidc', { successReturnToOrRedirect: "/dashboard", failureRedirect: '/' }));
+// app.get('/api/login-callback', passport.authenticate('oidc', { successReturnToOrRedirect: "/dashboard", failureRedirect: '/' }));
+
+// Socket.IO events
+io.on('connection', client => {
+  const user = (client.request as any).session?.passport?.user
+  logger.info("new socket connection for user " + JSON.stringify(user))
+  if (!user) {
+    client.disconnect()
+    return
+  }
+})
+
+// Connect to MongoDB and start the server
 client.connect().then(async () => {
   logger.info('connected successfully to MongoDB')
   db = client.db("task_tracker")
@@ -93,18 +105,14 @@ client.connect().then(async () => {
       nonce: generators.nonce(),
       redirect_uri: `http://${HOST}:8080/api/login-callback`,
       state: generators.state(),
-
       // this forces a fresh login screen every time
-      prompt: "login",
+      // prompt: "login",
     }
 
     async function verify(tokenSet: any, userInfo: any, done: any) {
       try{
         logger.info("oidc " + JSON.stringify(userInfo))
-        // console.log('userInfo', userInfo)
-        // userInfo.roles = userInfo.groups.includes(OPERATOR_GROUP_ID) ? ["operator"] : ["customer"]
-        const existingUser = await db.collection('users').findOne({ netID: userInfo.nickname });
-        
+        const existingUser = await db.collection('users').findOne({ netID: userInfo.nickname }) || await db.collection('admins').findOne({ netID: userInfo.nickname });
         if (!existingUser) {
           const newUser: User ={
             netID: userInfo.nickname,
@@ -114,11 +122,22 @@ client.connect().then(async () => {
             birthDate: null, 
             tasks: [] 
           }
-          const insertResult = await db.collection('users').insertOne(newUser);
-          if (insertResult.acknowledged) {
-            logger.info('New user created with ID:', insertResult.insertedId);
+
+          userInfo.roles = userInfo.groups.includes(OPERATOR_GROUP_ID) ? "admin" : "user"
+          if (userInfo.roles === "admin") {
+            const insertResult = await db.collection('admins').insertOne(newUser);
+            if (insertResult.acknowledged) {
+              logger.info('New admin created with ID:', insertResult.insertedId);
+            } else {
+              logger.error('Failed to insert new admin');
+            }
           } else {
-            logger.error('Failed to insert new user');
+            const insertResult = await db.collection('users').insertOne(newUser);
+            if (insertResult.acknowledged) {
+              logger.info('New user created with ID:', insertResult.insertedId);
+            } else {
+              logger.error('Failed to insert new user');
+            }
           }
         }
         return done(null, userInfo);
@@ -129,9 +148,23 @@ client.connect().then(async () => {
     }
 
     passport.use('oidc', new Strategy({ client, params }, verify))
+
+    app.get(
+      "/api/login", 
+      passport.authenticate("oidc", { failureRedirect: "/api/login" }), 
+      (req, res) => res.redirect("/")
+    )
+    
+    app.get(
+      "/api/login-callback",
+      passport.authenticate("oidc", {
+        successRedirect: "/dashboard",
+        failureRedirect: "/api/login",
+      })
+    )
   }
 
-  app.listen(port, () => {
-    console.log(`Task tracker server listening on port ${port}`)
-  })
+    // start server
+    server.listen(port)
+    logger.info(`Task Tracker server listening on port ${port}`)
 })

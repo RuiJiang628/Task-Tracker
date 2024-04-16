@@ -149,10 +149,9 @@
 
 <script>
 
-// import io from 'socket.io-client';
+import io from 'socket.io-client';
 import { ref } from 'vue';
 
-// const socket = io();
 export default {
   data() {
     return {
@@ -162,6 +161,7 @@ export default {
       showModal: false,
       newTaskTitle: "",
       newTaskDescription: "",
+      socket: null,
       tasks: [
         {
           id: 1,
@@ -184,6 +184,21 @@ export default {
       ],
       filterStatus: "All",
     };
+  },
+  mounted() {
+    // 连接到后端 Socket.IO 服务器
+    this.socket = io('http://127.0.0.1:8193');
+
+    // 监听身份验证状态的事件
+    this.socket.on('authenticated', (data) => {
+      console.log('Authenticated!', data);
+      // 处理登录成功，例如存储用户数据或更新状态
+    });
+
+    this.socket.on('unauthenticated', () => {
+      console.log('Authentication failed.');
+      // 处理登录失败，例如显示错误消息
+    });
   },
   methods: {
     addTask() {
@@ -229,8 +244,6 @@ export default {
     },
 
     login() {
-      // Simulate login process
-      // this.socket.emit('request-oidc-auth-url');
       window.location.href = "/api/login";
       this.isLoggedIn = true;
     },

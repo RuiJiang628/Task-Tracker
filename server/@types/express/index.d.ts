@@ -3,8 +3,11 @@ export {}
 declare global {
   namespace Express {
     interface User {
-      preferred_username: string;
-      roles?: string[];
+      netID: string
+      userName: string
+      email: string
+      gender: 'male' | 'female' | 'other' | null
+      birthDate: Date | null
     }
   }
 }

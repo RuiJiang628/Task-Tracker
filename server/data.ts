@@ -13,6 +13,3 @@ export interface User {
   birthDate: Date | null
   tasks: Task[]
 }
-
-export interface AdminUser extends User {
-}
