@@ -159,9 +159,13 @@ client.connect().then(async () => {
       "/api/login-callback",
       passport.authenticate("oidc", {
         successRedirect: "/dashboard",
-        failureRedirect: "/api/login",
+        failureRedirect: "/",
       })
     )
+
+    app.get("/api/user", (req, res) => {
+      res.json(req.user || {})
+    })
   }
 
     // start server
