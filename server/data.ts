@@ -12,4 +12,5 @@ export interface User {
   gender: 'male' | 'female' | 'other' | null
   birthDate: Date | null
   tasks: Task[]
+  role: 'user' | 'admin'
 }

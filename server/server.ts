@@ -95,7 +95,7 @@ client.connect().then(async () => {
   db = client.db("task_tracker")
 
   if (DISABLE_SECURITY) {
-    passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, roles: req.query.role })))
+    passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, role: req.query.role })))
   } else {
     const issuer = await Issuer.discover("https://coursework.cs.duke.edu/")
     const client = new issuer.Client(gitlab)
@@ -113,6 +113,8 @@ client.connect().then(async () => {
       try{
         logger.info("oidc " + JSON.stringify(userInfo))
         const existingUser = await db.collection('users').findOne({ netID: userInfo.nickname }) || await db.collection('admins').findOne({ netID: userInfo.nickname });
+        userInfo.role = userInfo.groups.includes(OPERATOR_GROUP_ID) ? "admin" : "user"
+        
         if (!existingUser) {
           const newUser: User ={
             netID: userInfo.nickname,
@@ -120,11 +122,11 @@ client.connect().then(async () => {
             email: userInfo.email,
             gender: null,  
             birthDate: null, 
-            tasks: [] 
+            tasks: [],
+            role: userInfo.role
           }
 
-          userInfo.roles = userInfo.groups.includes(OPERATOR_GROUP_ID) ? "admin" : "user"
-          if (userInfo.roles === "admin") {
+          if (userInfo.role === "admin") {
             const insertResult = await db.collection('admins').insertOne(newUser);
             if (insertResult.acknowledged) {
               logger.info('New admin created with ID:', insertResult.insertedId);
@@ -155,18 +157,36 @@ client.connect().then(async () => {
       (req, res) => res.redirect("/")
     )
     
-    app.get(
-      "/api/login-callback",
-      passport.authenticate("oidc", {
-        successRedirect: "/dashboard",
-        failureRedirect: "/",
-      })
-    )
+      app.get("/api/login-callback",
+      passport.authenticate("oidc", { failureRedirect: "/api/login" }),
+      (req, res) => {
+        // 检查用户的角色并决定重定向的URL
+        console.log("login-callback", (req.user as User).role)
+        if ((req.user as User).role === "admin") {
+          res.redirect("/admin");
+        } else {
+          res.redirect("/dashboard");
+        }
+      }
+    );
 
     app.get("/api/user", (req, res) => {
       res.json(req.user || {})
     })
+
+    app.post(
+      "/api/logout",
+      (req, res, next) => {
+        req.logout((err) => {
+          if (err) {
+            return next(err)
+          }
+          res.redirect("/")
+        })
+      }
+    )
   }
+
 
     // start server
     server.listen(port)
