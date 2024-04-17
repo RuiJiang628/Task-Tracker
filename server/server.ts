@@ -1,25 +1,25 @@
 import express from 'express';
 import { createServer } from "http"
-import bodyParser from 'body-parser';
-import pino from 'pino';
-import expressPinoLogger from 'express-pino-logger';
-import { MongoClient, Db } from 'mongodb';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import { Issuer, Strategy, generators } from 'openid-client';
-import passport from 'passport';
+import bodyParser from 'body-parser'
+import pino from 'pino'
+import expressPinoLogger from 'express-pino-logger'
+import { MongoClient, Db } from 'mongodb'
+import session from 'express-session'
+import MongoStore from 'connect-mongo'
+import { Issuer, Strategy, generators } from 'openid-client'
+import passport from 'passport'
 import cors from 'cors';
 import { Strategy as CustomStrategy } from "passport-custom"
-import { Server } from "socket.io";
-import { gitlab } from './secrets';
-import { User, Task } from './data';
+import { Server } from "socket.io"
+import { gitlab } from './secrets'
+import { User, Task } from './data'
 
 
-const HOST = process.env.HOST || "127.0.0.1";
-const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY;
-const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017';
-const client = new MongoClient(mongoUrl);
-const port = parseInt(process.env.PORT) || 8193;
+const HOST = process.env.HOST || "127.0.0.1"
+const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
+const client = new MongoClient(mongoUrl)
+const port = parseInt(process.env.PORT) || 8193
 let db: Db
 
 const OPERATOR_GROUP_ID = "oidc-card-game"
