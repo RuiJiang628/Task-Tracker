@@ -7,6 +7,9 @@
         Sign in
       </button>
     </template>
+    <template v-slot:greeting>
+      <h2>Hello, visitor!</h2>
+    </template>
   </Dashboard>
 </template>
 

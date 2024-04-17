@@ -92,7 +92,7 @@
         <slot name = "header"></slot>
         <!-- Greeting Section -->
         <div class="greeting-section">
-          <h2>Hello, Ray!</h2>
+          <slot name="greeting"></slot>
           <p>What do you want to do today?</p>
           <span class="date">Monday, 18 December 2023</span>
         </div>

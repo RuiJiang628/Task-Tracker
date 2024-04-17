@@ -61,7 +61,7 @@ declare module 'express-session' {
 app.use(passport.initialize());
 app.use(passport.session());
 passport.serializeUser((user, done) => {
-  console.log("serializeUser", user)
+  // console.log("serializeUser", user)
   done(null, user)
 })
 passport.deserializeUser((user: any, done) => {
@@ -170,10 +170,26 @@ client.connect().then(async () => {
       }
     );
 
-    app.get("/api/user", (req, res) => {
-      res.json(req.user || {})
+    app.get("/api/user", async (req, res) => {
+      if (!req.user) {
+        return res.status(401).json({ message: 'User is not authenticated' });
+      }
+    
+      const netID = (req.user as any).nickname;
+      try {
+        const userInDb = await db.collection('users').findOne({ netID: netID });
+    
+        if (userInDb) {
+          return res.json(userInDb);
+        } else {
+          return res.status(404).json({ message: 'User not found' });
+        }
+      } catch (error) {
+        console.error('Error fetching user from MongoDB', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
     })
-
+    
     app.post(
       "/api/logout",
       (req, res, next) => {
