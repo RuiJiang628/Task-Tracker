@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import Dashboard from './../components/Dashboard.vue';
+import { io } from 'socket.io-client';
 
 const handleLogin = () => {
   window.location.href = "/api/login";

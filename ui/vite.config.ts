@@ -26,6 +26,13 @@ export default defineConfig({
 			"^/api": {
 				target: "http://127.0.0.1:8193"
 			},
+      "^/socket.io": {
+				target: "http://127.0.0.1:8193",
+        ws: true
+			},
+      "^/login-callback": {
+				target: "http://127.0.0.1:8193",
+			},
     }
 	},
 })

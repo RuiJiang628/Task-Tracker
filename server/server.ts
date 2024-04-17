@@ -27,6 +27,7 @@ const OPERATOR_GROUP_ID = "oidc-card-game"
 // Express setup
 const app = express();
 const server = createServer(app)
+const io = new Server(server)
 
 // Middleware setup
 app.use(bodyParser.json());
@@ -37,7 +38,7 @@ const logger = pino({
   } 
 });
 app.use(expressPinoLogger({ logger }));
-app.use(cors({ origin: "http://127.0.0.1:8080", credentials: true }));
+// app.use(cors({ origin: "http://127.0.0.1:8080", credentials: true }));
 
 const sessionMiddleware = session({
   secret: 'a just so-so secret',
@@ -68,9 +69,6 @@ passport.deserializeUser((user: any, done) => {
   done(null, user)
 })
 
-// set up Socket.IO
-const io = new Server(server)
-
 // convert a connect middleware to a Socket.IO middleware
 const wrap = (middleware: any) => (socket: any, next: any) => middleware(socket.request, {}, next)
 io.use(wrap(sessionMiddleware))
@@ -87,6 +85,26 @@ io.on('connection', client => {
     client.disconnect()
     return
   }
+  client.on('saveProfile', async (profileData) => {
+    console.log("saveProfile", profileData)
+    try {
+      // Assuming profileData contains an 'id' to identify the user document
+      const { _id, netID, ...updateData } = profileData;      
+
+      // Update the user profile in the database
+      const result = await db.collection('users').updateOne({ netID: netID }, { $set: updateData });
+
+      if (result.modifiedCount === 0) {
+        throw new Error('No document found with the given id or no changes made.');
+      }
+      // On successful update, emit a success event back to the client
+      client.emit('profileSaved', { status: 'success' });
+    } catch (error) {
+      // If an error occurs, emit an error event back to the client
+      console.error('Error saving profile:', error);
+      client.emit('saveError', { status: 'error', error: error.message });
+    }
+  })
 })
 
 // Connect to MongoDB and start the server
@@ -202,8 +220,6 @@ client.connect().then(async () => {
       }
     )
   }
-
-
     // start server
     server.listen(port)
     logger.info(`Task Tracker server listening on port ${port}`)

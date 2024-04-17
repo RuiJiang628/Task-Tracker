@@ -56,7 +56,7 @@
 
         <!-- Buttons -->
         <div class="actions">
-            <button type="cancel" class="button cancel-button">Cancel</button>
+          <button type="button" class="button cancel-button" @click="cancelForm">Cancel</button>
           <button type="submit" class="button save-button">Save</button>
         </div>
       </form>
@@ -70,13 +70,23 @@
   import { onMounted, ref, provide } from 'vue'
   import { User } from '../data'
   import { useRouter } from 'vue-router';
+  import { io } from 'socket.io-client';
 
   const router = useRouter();
   const user = ref({} as User)
   provide("user", user)
+  const socket = io()
 
   onMounted(async () => {
     user.value = await (await fetch("/api/user")).json()
+    socket.on('profileSaved', (data) => {
+      console.log('Profile saved!', data);
+    })
+
+    socket.on('saveError', (error) => {
+      console.error('Profile save failed:', error);
+      alert('Failed to save profile!');
+    })
   })
 
   const goBack = () => {
@@ -86,6 +96,29 @@
   function logout() {
   ;(window.document.getElementById('logoutForm') as HTMLFormElement).submit()  
   }
+
+  const submitForm = () => {
+    console.log('Saving profile:', user.value);
+    socket.emit('saveProfile', user.value);
+  };
+
+  const cancelForm = () => {
+    fetchUserData(); // 重新获取用户数据，重置表单
+  };
+
+  const fetchUserData = async () => {
+    try {
+        const response = await fetch("/api/user");
+        if (response.ok) {
+            const data = await response.json();
+            user.value = data; // 假设 user 是一个响应式引用，存储用户数据
+        } else {
+            throw new Error('Failed to fetch user data');
+        }
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
 
 </script>
   
