@@ -237,3 +237,9 @@ h1 {
   pointer-events: none; /* 确保按钮在禁用状态下不可点击 */
   /* 可以根据需要添加更多样式 */
 }
+
+.error-message {
+  font-family: "lexend";
+  color: #d9534f;
+  font-size: 14px;
+}

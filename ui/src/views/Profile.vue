@@ -31,12 +31,18 @@
           <div class="input-group">
             <label for="username">User Name</label>
             <input id="username" type="text" v-model="user.userName" />
+            <span v-if="errors.userNameError" class="error-message">{{
+              errors.userNameError
+            }}</span>
           </div>
 
           <!-- Email Field -->
           <div class="input-group">
             <label for="email">Email</label>
             <input id="email" type="email" v-model="user.email" />
+            <span v-if="errors.emailError" class="error-message">{{
+              errors.emailError
+            }}</span>
           </div>
 
           <div class="input-group">
@@ -66,7 +72,7 @@
             <button
               type="submit"
               class="button save-button"
-              :disabled="!profileChanges"
+              :disabled="!profileChanges || hasFormErrors"
             >
               Save
             </button>
@@ -78,14 +84,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, provide, computed } from "vue";
-import { User } from "../data";
+import { onMounted, ref, provide, computed, watch } from "vue";
+import { User, Errors } from "../data";
 import { useRouter } from "vue-router";
 import { io } from "socket.io-client";
 
 const router = useRouter();
 const user = ref({} as User);
 const originalUser = ref({} as User);
+const errors = ref({ userNameError: "", emailError: "" } as Errors);
+provide("errors", errors);
 provide("user", user);
 provide("userCopy", originalUser);
 const socket = io();
@@ -106,11 +114,29 @@ onMounted(async () => {
 });
 
 const profileChanges = computed(() => {
-  return JSON.stringify(user.value) !== JSON.stringify(originalUser.value);
+  return (
+    JSON.stringify(user.value) !== JSON.stringify(originalUser.value) &&
+    !hasFormErrors.value
+  );
 });
 
+const hasFormErrors = computed(() => {
+  return errors.value.userNameError !== "" || errors.value.emailError !== "";
+});
+
+watch(
+  user,
+  (newValue) => {
+    errors.value.userNameError = newValue.userName
+      ? ""
+      : "User name cannot be empty";
+    errors.value.emailError = newValue.email ? "" : "Email cannot be empty";
+  },
+  { deep: true }
+);
+
 const goBack = () => {
-  router.go(-1); // 这将模拟浏览器的后退按钮
+  router.go(-1);
 };
 
 function logout() {
@@ -118,8 +144,13 @@ function logout() {
 }
 
 const submitForm = () => {
-  console.log("Saving profile:", user.value);
-  socket.emit("saveProfile", user.value);
+  if (!hasFormErrors.value) {
+    console.log("Saving profile:", user.value);
+    socket.emit("saveProfile", user.value);
+    originalUser.value = JSON.parse(JSON.stringify(user.value));
+  } else {
+    alert("Please correct the errors before saving.");
+  }
 };
 
 const cancelForm = () => {
