@@ -20,7 +20,7 @@
 
 
 <script setup lang = "ts">
-  import { onMounted, ref, provide } from 'vue'
+  import { onMounted, ref, provide, watchEffect, onUnmounted } from 'vue'
   import { User } from '../data'
   import { io } from 'socket.io-client';
 
