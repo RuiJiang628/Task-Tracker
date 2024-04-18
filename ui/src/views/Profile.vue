@@ -58,7 +58,17 @@
           <!-- Birthday Field -->
           <div class="input-group">
             <label for="birthday">Birthday</label>
-            <input id="birthday" type="date" v-model="user.birthDate" />
+            <input
+              type="date"
+              id="birthday"
+              v-model="user.birthDate"
+              :min="minDate"
+              :max="maxDate"
+              :class="{ 'error-input': errors.birthDateError }"
+            />
+            <span v-if="errors.birthDateError" class="error-message">{{
+              errors.birthDateError
+            }}</span>
           </div>
 
           <!-- Buttons -->
@@ -93,7 +103,11 @@ import { io } from "socket.io-client";
 const router = useRouter();
 const user = ref({} as User);
 const originalUser = ref({} as User);
-const errors = ref({ userNameError: "", emailError: "" } as Errors);
+const errors = ref({
+  userNameError: "",
+  emailError: "",
+  birthDateError: "",
+} as Errors);
 provide("errors", errors);
 provide("user", user);
 provide("userCopy", originalUser);
@@ -114,6 +128,9 @@ onMounted(async () => {
   });
 });
 
+const maxDate = ref(new Date().toISOString().substr(0, 10)); // 获取当前日期并转换为 YYYY-MM-DD 格式
+const minDate = ref("1900-01-01");
+
 const profileChanges = computed(() => {
   return (
     JSON.stringify(user.value) !== JSON.stringify(originalUser.value) &&
@@ -122,7 +139,11 @@ const profileChanges = computed(() => {
 });
 
 const hasFormErrors = computed(() => {
-  return errors.value.userNameError !== "" || errors.value.emailError !== "";
+  return (
+    errors.value.userNameError !== "" ||
+    errors.value.emailError !== "" ||
+    errors.value.birthDateError !== ""
+  );
 });
 
 watch(
@@ -132,6 +153,23 @@ watch(
       ? ""
       : "User name cannot be empty";
     errors.value.emailError = newValue.email ? "" : "Email cannot be empty";
+
+    try {
+      const birthDate = new Date(newValue.birthDate as Date);
+      const today = new Date();
+      const minAllowedDate = new Date(minDate.value);
+
+      if (isNaN(birthDate.getTime())) {
+        errors.value.birthDateError = "Please enter a valid date.";
+      } else if (birthDate > today || birthDate < minAllowedDate) {
+        errors.value.birthDateError =
+          "Invalid birthday. Please choose a date between 1900 and today.";
+      } else {
+        errors.value.birthDateError = "";
+      }
+    } catch (error) {
+      errors.value.birthDateError = "Invalid date format.";
+    }
   },
   { deep: true }
 );

@@ -24,4 +24,5 @@ export interface User {
 export interface Errors {
   userNameError: string;
   emailError: string;
+  birthDateError: string;
 }
