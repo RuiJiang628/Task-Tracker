@@ -174,9 +174,17 @@ watch(
   { deep: true }
 );
 
-const goBack = () => {
-  router.go(-1);
-};
+  const forceRefreshBack = () => {
+    // Optionally, you can add logic to determine the specific route to go back to
+    router.replace('/base').then(() => {
+      // This is a trick to ensure the navigation stack is cleared correctly.
+      router.back();
+    });
+  };
+
+  const goBack = () => {
+    forceRefreshBack();
+  };
 
 function logout() {
   (window.document.getElementById("logoutForm") as HTMLFormElement).submit();
