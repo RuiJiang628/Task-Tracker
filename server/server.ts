@@ -169,6 +169,17 @@ client.connect().then(async () => {
 
     passport.use('oidc', new Strategy({ client, params }, verify))
 
+    app.get('/api/check-auth', (req, res) => {
+      // Passport adds the isAuthenticated method to the request object
+      if (req.isAuthenticated()) {
+        // If the user is authenticated, return a successful response
+        res.status(200).json({ message: 'User is authenticated' });
+      } else {
+        // If the user is not authenticated, return an unauthorized status
+        res.status(401).json({ message: 'User is not authenticated' });
+      }
+    })
+
     app.get(
       "/api/login", 
       passport.authenticate("oidc", { failureRedirect: "/api/login" }), 
