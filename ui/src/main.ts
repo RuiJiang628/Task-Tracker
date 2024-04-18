@@ -11,14 +11,44 @@ import Base from "./views/Base.vue";
 // import Register from "./views/Register.vue";
 import Dashboard from "./views/Dashboard.vue";
 import Profile from "./views/Profile.vue";
+import { User } from "./data";
 
 const routes = [
   // a component that will be rendered when the route is matched
-  { path: "/admin", component: Admin, meta: { requiresAuth: true }},
+  { path: "/admin", component: Admin, meta: { requiresAuth: true },
+    beforeEnter: async (to, from, next) => {
+      try {
+        // Make an API call to get the user information
+        const response = await fetch('/api/user', { credentials: 'include' });
+        if (!response.ok) throw new Error('Not authenticated'); // If the response is not OK, throw an error
+        const userData = await response.json();
+
+        // Check if the user's role is 'admin'
+        if (userData.role === 'admin') {
+          next(); // If user is an admin, allow access
+        } else {
+          next('/dashboard'); // If user is not an admin, redirect to the dashboard
+        }
+      } catch (error) {
+        // In case of an error or if not authenticated, redirect to the login page
+        next('/');
+      }
+    }
+  },
   { path: "/", component: Base },
   // { path: "/register", component: Register },
   { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true }},
   { path: "/profile", component: Profile, meta: { requiresAuth: true }},
+  { path: '/:pathMatch(.*)*', 
+    beforeEnter: async (to, from, next) => {
+      try {
+        await axios.get('/api/check-auth', { withCredentials: true });
+        next('/dashboard'); // Redirect to the dashboard
+      } catch (error) {
+        next('/'); // Redirect to the login page
+      }
+    }
+  },
 ];
 
 const router = createRouter({
