@@ -9,6 +9,10 @@
   overflow: hidden;
 }
 
+a:hover {
+  text-decoration: none; /* 这将移除悬停时的下划线 */
+}
+
 .task-tracker-container::before {
   content: "";
   position: absolute;

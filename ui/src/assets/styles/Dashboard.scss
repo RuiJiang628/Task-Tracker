@@ -225,6 +225,10 @@ h1 {
   }
 }
 
+a:hover {
+  text-decoration: none; /* 这将移除悬停时的下划线 */
+}
+
 .greeting-section {
   position: relative;
   background-color: #ffffff;
@@ -242,6 +246,7 @@ h1 {
     margin-left: 1rem; /* Decrease the margin for smaller screens */
     margin-right: 1rem; /* Decrease the margin for smaller screens */
   }
+
 
   h2 {
     font-family: "Lexend";

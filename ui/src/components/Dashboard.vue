@@ -2,8 +2,9 @@
     <div class="task-tracker-container">
       <!-- 左侧导航栏 -->
       <aside class="sidebar">
-        <h1>Task Tracker</h1>
-  
+        <a href="/dashboard">
+          <h1>Task Tracker</h1>
+        </a>
         <div class="add-task">
           <button class="add-task-button" @click="showModal = true">
             Add Task

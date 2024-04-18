@@ -2,7 +2,9 @@
   <div class="task-tracker-container">
     <!-- Left Sidebar -->
     <aside class="sidebar">
-      <h1>Task Tracker</h1>
+      <a href="/dashboard">
+        <h1>Task Tracker</h1>
+      </a>
     </aside>
 
     <!-- Right Main Content Area -->
