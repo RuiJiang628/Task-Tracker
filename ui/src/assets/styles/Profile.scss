@@ -1,203 +1,203 @@
 .task-tracker-container {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    width: 100vw;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-  
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .task-tracker-container::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url("../background.png");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    opacity: 0.7;
-    z-index: -1;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("../background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 0.7;
+  z-index: -1;
 }
 
 .sidebar {
-    height: 100vh;
-    background: rgba(255, 255, 255, 0.5);
-    flex-direction: column;
-    align-items: center;
-    justify-content: start;
-    padding: 1vw 0;
-    box-sizing: border-box;
-    box-shadow: 0 0 7px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    @media (max-width: 600px) {
-      width: 30vw; /* Decrease the width for smaller screens */
-    }
-    @media (min-width: 601px) {
-      width: 20vw; /* Keep the width for larger screens */
-    }
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.5);
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  padding: 1vw 0;
+  box-sizing: border-box;
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  @media (max-width: 600px) {
+    width: 30vw; /* Decrease the width for smaller screens */
+  }
+  @media (min-width: 601px) {
+    width: 20vw; /* Keep the width for larger screens */
+  }
 }
-  
+
 h1 {
-    cursor: pointer;
-    color: #ba5112;
-    margin-top: 2vh;
-    font-weight: 600;
-    font-family: "Lexend";
-    width: 100%;
-    text-align: center;
-    @media (max-width: 600px) {
-      font-size: 1rem; /* Decrease the font size for smaller screens */
-      line-height: 3vw; /* Decrease the line height for smaller screens */
-    }
-    @media (min-width: 601px) {
-      font-size: 1.5rem; /* Increase the font size for larger screens */
-      line-height: 5vw; /* Increase the line height for larger screens */
-    }
+  cursor: pointer;
+  color: #ba5112;
+  margin-top: 2vh;
+  font-weight: 600;
+  font-family: "Lexend";
+  width: 100%;
+  text-align: center;
+  @media (max-width: 600px) {
+    font-size: 1rem; /* Decrease the font size for smaller screens */
+    line-height: 3vw; /* Decrease the line height for smaller screens */
+  }
+  @media (min-width: 601px) {
+    font-size: 1.5rem; /* Increase the font size for larger screens */
+    line-height: 5vw; /* Increase the line height for larger screens */
+  }
 }
 
 .main-content {
-    flex-grow: 1;
-    padding: 1rem;
-    margin-top: 10vh;
-    @media (max-width: 600px) {
-        margin-top: 6vh; /* Decrease the margin for smaller screens */
-    }
+  flex-grow: 1;
+  padding: 1rem;
+  margin-top: 10vh;
+  @media (max-width: 600px) {
+    margin-top: 6vh; /* Decrease the margin for smaller screens */
+  }
 }
 
 .edit-profile {
-    width: 85%;
-    padding: 2rem;
-    align-items: center;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-left: 2rem; /* Space from the sidebar */
-    margin-right: 1rem;
-    margin-top: 0.5rem;
-    max-height: 100%;
-    overflow-y: auto;
-    @media (max-width: 600px) {
-        margin-left: 1rem; /* Decrease the margin for smaller screens */
-    }
-    h2 {
-        margin-bottom: 1rem;
-        font-family: "Lexend";
-        right: 2rem;
-        white-space: nowrap;
-    }
+  width: 85%;
+  padding: 2rem;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-left: 2rem; /* Space from the sidebar */
+  margin-right: 1rem;
+  margin-top: 0.5rem;
+  max-height: 100%;
+  overflow-y: auto;
+  @media (max-width: 600px) {
+    margin-left: 1rem; /* Decrease the margin for smaller screens */
+  }
+  h2 {
+    margin-bottom: 1rem;
+    font-family: "Lexend";
+    right: 2rem;
+    white-space: nowrap;
+  }
 
-    label {
-        font-family: "Lexend";
-        display: block;
-        margin-top: 0.5em;
-        font-weight: 400;
-    }
+  label {
+    font-family: "Lexend";
+    display: block;
+    margin-top: 0.5em;
+    font-weight: 400;
+  }
 
-    input {
-        font-family: "Lexend";
-        width: 100%;
-        padding: 0.5em;
-        margin-bottom: 0.5em;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
+  input {
+    font-family: "Lexend";
+    width: 100%;
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
 
-    select {
-        display: block;
-        font-family: "Lexend";
-        width: 100%;
-        padding: 0.5em;
-        // margin-left: 0.5em;
-        border: 1px solid #ccc;
-        margin-bottom: 0.5em;
-        border-radius: 5px;
-      }
+  select {
+    display: block;
+    font-family: "Lexend";
+    width: 100%;
+    padding: 0.5em;
+    // margin-left: 0.5em;
+    border: 1px solid #ccc;
+    margin-bottom: 0.5em;
+    border-radius: 5px;
+  }
 }
 
 /* 公共样式 */
 .button {
-    display: flex;
-    position: absolute;
-    left: auto;
-    flex-direction: row; /* Align the text and icon in a row */
-    align-items: center; /* Vertically center the text and icon */
-    justify-content: center; /* Horizontally center the text */
-    padding: 0.5rem 1rem; /* Padding inside the button */
-    font-family: "Lexend";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 1rem;
-    border: none; /* No border */
-    color: #ffffff; /* Text color */
-    border-radius: 0.5rem; /* Rounded corners for the button */
-    cursor: pointer; /* Change the cursor on hover */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    outline: none; /* Removes the outline */
-    white-space: nowrap; /* Prevents wrapping */
-    gap: 0.5rem; /* Gap between the text and the icon */
+  display: flex;
+  position: absolute;
+  left: auto;
+  flex-direction: row; /* Align the text and icon in a row */
+  align-items: center; /* Vertically center the text and icon */
+  justify-content: center; /* Horizontally center the text */
+  padding: 0.5rem 1rem; /* Padding inside the button */
+  font-family: "Lexend";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1rem;
+  border: none; /* No border */
+  color: #ffffff; /* Text color */
+  border-radius: 0.5rem; /* Rounded corners for the button */
+  cursor: pointer; /* Change the cursor on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  outline: none; /* Removes the outline */
+  white-space: nowrap; /* Prevents wrapping */
+  gap: 0.5rem; /* Gap between the text and the icon */
 
-    @media (max-width: 600px) {
-        font-size: 0.8rem; // 对于小屏幕，减小字体大小
-        padding: 0.5rem; // 减小内边距
-        gap: 0.3rem; // 减小图标和文本之间的距离
-    }
+  @media (max-width: 600px) {
+    font-size: 0.8rem; // 对于小屏幕，减小字体大小
+    padding: 0.5rem; // 减小内边距
+    gap: 0.3rem; // 减小图标和文本之间的距离
+  }
 }
 
 /* 独特样式 */
 .sign-out-button {
-    left: auto;
-    right: 2rem;
-    background-color: #ba5112; /* Button background color */
-    top: 2vw;
+  left: auto;
+  right: 2rem;
+  background-color: #ba5112; /* Button background color */
+  top: 2vw;
 
-    .icon-logout {
-        background-image: url("../logout-icon.png"); /* Path to your logout icon */
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        width: 1rem; 
-        height: 1rem;
-    }
+  .icon-logout {
+    background-image: url("../logout-icon.png"); /* Path to your logout icon */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 1rem;
+    height: 1rem;
+  }
 
-    @media (max-width: 600px) {
-        top: 1rem; 
-    }
+  @media (max-width: 600px) {
+    top: 1rem;
+  }
 }
 
 @media (max-width: 600px) {
-    .icon-logout {
-        display: none;
-    }
-    .icon-return {
-        display: none;
-    }
+  .icon-logout {
+    display: none;
+  }
+  .icon-return {
+    display: none;
+  }
 }
 
 .return-button {
-    top: 2vw;
-    left: auto;
-    background-color: #EDB046; /* Button background color */
-    right: 11rem;
+  top: 2vw;
+  left: auto;
+  background-color: #edb046; /* Button background color */
+  right: 11rem;
 
-    .icon-return {
-        background-image: url("../return-icon.png"); /* Path to your return icon */
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        width: 1rem; 
-        height: 1rem;
-    }
-    @media (max-width: 600px) {
-            right: 7rem;
-            top: 1rem; 
-        }
+  .icon-return {
+    background-image: url("../return-icon.png"); /* Path to your return icon */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 1rem;
+    height: 1rem;
+  }
+  @media (max-width: 600px) {
+    right: 7rem;
+    top: 1rem;
+  }
 }
 
-.actions{
+.actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px; /* Spacing between buttons */
@@ -205,7 +205,7 @@ h1 {
 }
 
 .cancel-button {
-  background-color: #EDB046; /* Button background color */
+  background-color: #edb046; /* Button background color */
   color: #ffffff; /* Text color */
   border-radius: 5px; /* Rounded corners for the button */
   border: none; /* No border */
@@ -227,4 +227,13 @@ h1 {
   font-weight: 400;
   margin-top: -2vh;
   position: inherit;
+}
+
+.button.save-button:disabled,
+.button-disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed; /* 显示不允许的光标图标 */
+  pointer-events: none; /* 确保按钮在禁用状态下不可点击 */
+  /* 可以根据需要添加更多样式 */
 }
