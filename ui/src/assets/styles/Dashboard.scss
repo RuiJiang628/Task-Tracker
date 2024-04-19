@@ -90,7 +90,7 @@ h1 {
       padding: 0.2rem 0.2rem; /* Padding inside the button */
     }
     @media (min-width: 601px) {
-      font-size:1.25rem; 
+      font-size: 1.25rem;
       padding: 0.75rem 1rem; /* Padding inside the button */
     }
   }
@@ -216,7 +216,7 @@ h1 {
 }
 
 .nav-button.active {
-  background-color: #edb046;
+  background-color: #ffb92e;
   color: #ffffff;
 }
 
@@ -250,7 +250,6 @@ a:hover {
     margin-left: 1rem; /* Decrease the margin for smaller screens */
     margin-right: 1rem; /* Decrease the margin for smaller screens */
   }
-
 
   h2 {
     font-family: "Lexend";
@@ -325,8 +324,6 @@ a:hover {
     }
   }
 
-
-
   .task-list {
     display: flex;
     flex-direction: column;
@@ -373,7 +370,7 @@ a:hover {
       width: 100%;
       height: 100%;
       background-color: #ffffff;
-      border: 2px solid #edb046;
+      border: 2px solid #ffb92e;
       border-radius: 50%;
       z-index: 0;
     }
@@ -395,7 +392,7 @@ a:hover {
 
     /* Change the background color of the entire task item when checked */
     .task-item.checked {
-      background-color: #edb046; // Background color for the checked state (orange)
+      background-color: #ffb92e;
       box-shadow: none; // Assuming no shadow in the checked state
     }
   }
@@ -490,7 +487,7 @@ textarea {
   font-size: 1em;
   color: black;
   background-color: #ffffff;
-  border: 2px solid #edb046;
+  border: 2px solid #ffb92e;
 }
 
 .save-button {
@@ -501,7 +498,7 @@ textarea {
   cursor: pointer;
   font-size: 1em;
   color: white;
-  background-color: #edb046;
+  background-color: #ffb92e;
   border: none;
 }
 
