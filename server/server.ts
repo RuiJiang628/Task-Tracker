@@ -160,6 +160,26 @@ io.on('connection', client => {
     }
   })
 
+  client.on('fetchAllUsers', async () => {
+    const user = (client.request as any).session?.passport?.user;
+    if (!user) {
+      client.emit('unauthorized', { message: 'Authentication required' });
+      return;
+    }
+    console.log("fetchAllUsers", user)
+    // 假设用户信息中有 role 字段
+    if (user.role !== 'admin') {
+      client.emit('unauthorized', { message: 'Admin privileges required' });
+      return;
+    }
+    try {
+      const users = await db.collection('users').find({}).toArray(); // 获取非管理员用户
+      client.emit('usersFetched', users);
+    } catch (error) {
+      client.emit('error', { message: 'Failed to fetch users', error: error.message });
+    }
+  })
+
 })
 
 // Connect to MongoDB and start the server
@@ -209,6 +229,8 @@ client.connect().then(async () => {
           } else {
             const insertResult = await db.collection('users').insertOne(newUser);
             if (insertResult.acknowledged) {
+              io.emit('userUpdated', newUser);
+              console.log("userUpdated", newUser)
               logger.info('New user created with ID:', insertResult.insertedId);
             } else {
               logger.error('Failed to insert new user');

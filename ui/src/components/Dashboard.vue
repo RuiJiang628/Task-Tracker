@@ -168,7 +168,7 @@
     });
   }
   
-  let intervalId;
+  let intervalId: any;
 
   async function checkAuthentication() {
     try {
