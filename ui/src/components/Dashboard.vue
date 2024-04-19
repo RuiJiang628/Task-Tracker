@@ -171,21 +171,25 @@
 
   onUnmounted(() => {
     clearInterval(intervalId); // 清除计时器防止内存泄漏
-})
+  })
 
-  onMounted(async () => {
+  async function checkAuthentication() {
     try {
-      const response = await fetch('/api/user', { credentials: 'include' });
-      if (response.ok) {
-        user.value = await response.json();
+      const response = await axios.get('/api/check-auth', { withCredentials: true });
+      if (response.status === 200) {
         isLoggedIn.value = true;
       } else {
         isLoggedIn.value = false;
       }
     } catch (error) {
-      console.error(error);
+      isLoggedIn.value = false;
+      console.error('Authentication check failed:', error);
     }
-  } )
+  }
+
+  onMounted(() => {
+    checkAuthentication();
+  });
 
   // 方法
   // function addTask() {

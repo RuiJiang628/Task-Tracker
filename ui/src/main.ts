@@ -19,16 +19,9 @@ const routes = [
     beforeEnter: async (to, from, next) => {
       try {
         // Make an API call to get the user information
-        const response = await fetch('/api/user', { credentials: 'include' });
-        if (!response.ok) throw new Error('Not authenticated'); // If the response is not OK, throw an error
-        const userData = await response.json();
-
-        // Check if the user's role is 'admin'
-        if (userData.role === 'admin') {
-          next(); // If user is an admin, allow access
-        } else {
-          next('/dashboard'); // If user is not an admin, redirect to the dashboard
-        }
+        const response = await fetch('/api/admin', { credentials: 'include' });
+        if (!response.ok) next('/dashboard');
+        else next(); // If user is an admin, allow access
       } catch (error) {
         // In case of an error or if not authenticated, redirect to the login page
         next('/');

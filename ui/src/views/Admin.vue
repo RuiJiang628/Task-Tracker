@@ -10,6 +10,7 @@
       <button class="sign-out-button" @click="logout">
         Sign out
         <span class="icon-logout"></span>
+        <form method="POST" action="/api/logout" id="logoutForm" />
       </button>
       <!-- Greeting Section -->
       <div class="greeting-section">

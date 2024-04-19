@@ -206,8 +206,7 @@ client.connect().then(async () => {
     
       const netID = (req.user as any).nickname;
       try {
-        const userInDb = await db.collection('users').findOne({ netID: netID });
-    
+        const userInDb = await db.collection('users').findOne({ netID: netID })
         if (userInDb) {
           return res.json(userInDb);
         } else {
@@ -215,6 +214,24 @@ client.connect().then(async () => {
         }
       } catch (error) {
         console.error('Error fetching user from MongoDB', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+    })
+
+    app.get("/api/admin", async (req, res) => {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Admin is not authenticated' });
+      }
+      const netID = (req.user as any).nickname;
+      try {
+        const userInDb = await db.collection('admins').findOne({ netID: netID })
+        if (userInDb) {
+          return res.json(userInDb);
+        } else {
+          return res.status(404).json({ message: 'Admin not found' });
+        }
+      } catch (error) {
+        console.error('Error fetching admin from MongoDB', error);
         return res.status(500).json({ message: 'Internal server error' });
       }
     })
