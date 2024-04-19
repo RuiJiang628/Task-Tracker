@@ -430,6 +430,30 @@ a:hover {
   }
 }
 
+label {
+  font-family: "Lexend";
+  display: block;
+  margin-top: 0.5em;
+  font-weight: 400;
+  font-size: 1.1em;
+}
+
+input[type="user-text"],
+input[type="date"],
+textarea {
+  display: flex;
+  flex-direction: row;
+  // justify-content: center;
+  align-items: center;
+  width: 100%; /* Full width of the modal-content */
+  padding: 12px; /* Padding inside the input */
+  margin-bottom: 0.8em; /* Space between inputs */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em; /* Larger font size */
+  font-family: "Lexend"; /* Use the Lexend font */
+}
+
 input[type="text"],
 textarea {
   display: flex;
@@ -443,6 +467,35 @@ textarea {
   border-radius: 12px; /* Slightly rounded corners */
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
   font-size: 1em; /* Larger font size */
+}
+
+select {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 0.8em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: "Lexend";
+  background-color: #fff;
+  outline: none;
+  -moz-appearance: none; /* Remove the default arrow in Firefox */
+  -webkit-appearance: none; /* Remove the default arrow in Chrome/Safari */
+}
+
+/* Style for the custom dropdown arrow */
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 15px;
+  top: calc(50% - 0.5em);
+  pointer-events: none;
+}
+
+/* Ensure that the select-wrapper class is used on a div wrapping the select element */
+.select-wrapper {
+  position: relative;
 }
 
 .modal-content textarea[placeholder="Add description"] {
