@@ -6,7 +6,11 @@
         <h1>Task Tracker</h1>
       </a>
       <div class="add-task">
-        <button class="add-task-button" @click="showModal = true" :disabled="!isLoggedIn">
+        <button
+          class="add-task-button"
+          @click="showModal = true"
+          :disabled="!isLoggedIn"
+        >
           Add Task
           <span class="icon-circle">+</span>
         </button>
@@ -29,10 +33,17 @@
               Delete
             </button>
             <div class="modal-actions">
-              <button class="cancel-button" @click="showEditModal = false">
+              <button class="cancel-button" @click="closeEditModal">
                 Cancel
               </button>
-              <button class="save-button" @click="saveTaskEdits">Save</button>
+              <button
+                class="save-button"
+                @click="saveTaskEdits"
+                :disabled="!canSaveTaskEdits"
+                :class="{ 'button-disabled': !canSaveTaskEdits }"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
@@ -89,7 +100,7 @@
 
     <!-- Main content area -->
     <div class="main-content">
-      <slot name = "header"></slot>
+      <slot name="header"></slot>
       <!-- Greeting Section -->
       <div class="greeting-section">
         <slot name="greeting"></slot>
@@ -102,7 +113,9 @@
         <header class="task-header">
           <h2>{{ taskHeaderTitle }}</h2>
           <div>
-            <button class="delete-all-button"  :disabled="!isLoggedIn">Delete All</button>
+            <button class="delete-all-button" :disabled="!isLoggedIn">
+              Delete All
+            </button>
           </div>
         </header>
 
@@ -110,14 +123,14 @@
         <div class="task-list">
           <div
             v-for="task in filteredTasks"
-            :key="task.id"
+            :key="task.taskID"
             class="task-item"
             :class="{ checked: task.checked }"
             @click="selectTask(task)"
           >
             <!-- Custom Checkbox -->
-            <label class="custom-checkbox" @click.stop>
-              <input type="checkbox" v-model="task.checked" @click.stop />
+            <label class="custom-checkbox" @click="toggleTaskChecked(task)">
+              <input type="checkbox" v-model="task.checked" />
               <span class="checkbox-style"></span>
             </label>
 
@@ -129,123 +142,206 @@
     </div>
   </div>
 </template>
-  
+
 <script setup lang="ts">
-  import { ref, onMounted, computed, provide, onUnmounted } from 'vue';
-  import io from 'socket.io-client';
-  import axios from 'axios';
-  import { User, Task, addTask } from '../data';
+import { ref, onMounted, computed, provide, onUnmounted } from "vue";
+import io from "socket.io-client";
+import axios from "axios";
+import { User, Task, addTask } from "../data";
 
-  // 响应性状态
-  const selectedTask = ref<Task | null>(null);
-  const showEditModal = ref(false);
-  const showModal = ref(false);
-  const newTaskTitle = ref("");
-  const newTaskDescription = ref("");
-  const newTask = computed(() => {
-    return {
-      title: newTaskTitle.value,
-      description: newTaskDescription.value,
-      checked: false
-    }
+const selectedTask = ref<Task | null>(null);
+const showEditModal = ref(false);
+const showModal = ref(false);
+const newTaskTitle = ref("");
+const newTaskDescription = ref("");
+const newTask = computed(() => {
+  return {
+    title: newTaskTitle.value,
+    description: newTaskDescription.value,
+    checked: false,
+  };
+});
+const filterStatus = ref("All");
+const tasks = ref([]);
+const isLoggedIn = ref(false);
+
+const socket = io();
+
+const user = ref({} as User);
+provide("user", user);
+
+const currentDate = ref(
+  new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
-  const filterStatus = ref("All");
-  const tasks = ref([]);
-  const isLoggedIn = ref(false);
+);
 
-  const socket = io(); // 使用你的Socket.IO服务器地址
+function updateDate() {
+  currentDate.value = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 
-  const user = ref({} as User);
-  provide("user", user);
+function selectTask(task: Task) {
+  selectedTask.value = task; // select the task
+  showEditModal.value = true; // show the edit task modal window
+}
 
-  const currentDate = ref(new Date().toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  }));
+function closeEditModal() {
+  showEditModal.value = false; // close the edit task modal window
+}
 
-  function updateDate() {
-    currentDate.value = new Date().toLocaleDateString('en-US', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+let intervalId: any;
+
+async function checkAuthentication() {
+  try {
+    const response = await axios.get("/api/check-auth", {
+      withCredentials: true,
     });
-  }
-  
-  let intervalId: any;
-
-  async function checkAuthentication() {
-    try {
-      const response = await axios.get('/api/check-auth', { withCredentials: true });
-      if (response.status === 200) {
-        isLoggedIn.value = true;
-      } else {
-        isLoggedIn.value = false;
-      }
-    } catch (error) {
+    if (response.status === 200) {
+      isLoggedIn.value = true;
+    } else {
       isLoggedIn.value = false;
-      console.error('Authentication check failed:', error);
     }
+  } catch (error) {
+    isLoggedIn.value = false;
+    console.error("Authentication check failed:", error);
   }
+}
 
-  // 计算属性
-  const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
-  const filteredTasks = computed(() => {
-    return tasks.value.filter((task) => {
-      switch (filterStatus.value) {
-        case "Active": return !task.checked;
-        case "Completed": return task.checked;
-        default: return true;
-      }
-    })
-  })
-
-  const taskHeaderTitle = computed(() => {
+// 计算属性
+const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
+const canSaveTaskEdits = computed(() => {
+  if (!selectedTask.value) {
+    return false;
+  }
+  return selectedTask.value.title.trim().length > 0;
+});
+const filteredTasks = computed(() => {
+  return tasks.value.filter((task) => {
     switch (filterStatus.value) {
-      case "Active": return "Today's Active Tasks";
-      case "Completed": return "Today's Completed Tasks";
-      default: return "Today's Tasks";
+      case "Active":
+        return !task.checked;
+      case "Completed":
+        return task.checked;
+      default:
+        return true;
     }
   });
+});
 
-  function saveNewTask() {
-    addTask(newTask.value, {
-      onSuccess: (task) => {
-        newTaskTitle.value = ''; 
-        newTaskDescription.value = '';
-        showModal.value = false;
-        fetchTasks();
-      },
-      onError: (errorMessage) => {
-        message.value = errorMessage; // Display error message to the user
-      }
-    });
+const taskHeaderTitle = computed(() => {
+  switch (filterStatus.value) {
+    case "Active":
+      return "Today's Active Tasks";
+    case "Completed":
+      return "Today's Completed Tasks";
+    default:
+      return "Today's Tasks";
+  }
+});
+
+function saveNewTask() {
+  addTask(newTask.value, {
+    onSuccess: (task) => {
+      newTaskTitle.value = "";
+      newTaskDescription.value = "";
+      showModal.value = false;
+      fetchTasks();
+    },
+    onError: (errorMessage) => {
+      message.value = errorMessage;
+    },
+  });
+}
+
+function toggleTaskChecked(task: Task) {
+  task.checked = !task.checked;
+  socket.emit("updateTaskStatus", {
+    taskID: task.taskID,
+    checked: task.checked,
+  });
+}
+
+function saveTaskEdits() {
+  if (!selectedTask.value) {
+    console.error("No task selected to save.");
+    return;
   }
 
+  // Emit event to update task in the backend with the current state of selectedTask
+  socket.emit("updateTask", {
+    taskID: selectedTask.value.taskID,
+    title: selectedTask.value.title,
+    description: selectedTask.value.description,
+    checked: selectedTask.value.checked,
+  });
 
-  // Fetch tasks from the server
-  onMounted(() => {
-    setupSocketListeners();
-    checkAuthentication();
-    intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
-  })
+  // 监听后端响应
+  socket.once("taskUpdated", (response) => {
+    console.log("Task update success:", response);
+    fetchTasks(); // Re-fetch tasks to refresh the list
+    showEditModal.value = false; // 关闭模态窗口
+  });
 
-  onUnmounted(() => {
-    clearInterval(intervalId); // 清除计时器防止内存泄漏
-  })
+  socket.once("taskError", (error) => {
+    console.error("Error updating task:", error.message);
+    alert(`Failed to update task: ${error.message}`);
+  });
+}
 
-  function fetchTasks() {
-    socket.emit('getTasks'); // 请求任务数据
-  }
+// 删除任务的方法
+// function deleteTask(taskId) {
+//   socket.emit("deleteTask", taskId);
+//   socket.on("taskDeleted", () => {
+//     tasks.value = tasks.value.filter((task) => task.id !== taskId);
+//     alert("Task successfully deleted.");
+//   });
+//   socket.on("taskError", (error) => {
+//     console.error("Error deleting task:", error.message);
+//     alert(`Failed to delete task: ${error.message}`);
+//   });
+// }
 
-  function setupSocketListeners() {
-    socket.on('tasksFetched', (fetchedTasks) => {
-      tasks.value = fetchedTasks; // 更新任务数据
-    });
+// Fetch tasks from the server
+onMounted(() => {
+  console.log("Dashboard component mounted");
+  setupSocketListeners();
+  checkAuthentication();
+  intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
+});
 
-    socket.on('taskError', (data) => {
-      console.error(data.message); // 处理错误情况
-    });
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
 
-    // 请求任务数据
-    fetchTasks();
-  }
+function fetchTasks() {
+  socket.emit("getTasks");
+}
+
+function setupSocketListeners() {
+  socket.on("tasksFetched", (fetchedTasks) => {
+    tasks.value = fetchedTasks;
+  });
+
+  socket.on("taskError", (data) => {
+    console.error(data.message);
+  });
+
+  // socket.on("taskDeleted", (taskId) => {
+  //   tasks.value = tasks.value.filter((task) => task.id !== taskId);
+  //   alert("Task has been successfully deleted.");
+  // });
+
+  // 请求任务数据
+  fetchTasks();
+}
 </script>
-  
-<style scoped lang='scss', src="../assets/styles/Dashboard.scss"></style>
+
+<style scoped lang="scss" , src="../assets/styles/Dashboard.scss"></style>
