@@ -9,6 +9,7 @@
     </template>
     <template v-slot:greeting>
       <h2>Hello, visitor!</h2>
+      <p>Please sign in first.</p>
     </template>
   </Dashboard>
 </template>

@@ -12,6 +12,7 @@
     <template v-slot:greeting>
       <h2 v-if="isBirthday">Happy Birthday, {{ user.userName }}!🎂</h2>
       <h2 v-else>Hello, {{ user.userName }}!</h2>
+      <p>What do you want to do today?</p>
     </template>
   </Dashboard>
 </template>

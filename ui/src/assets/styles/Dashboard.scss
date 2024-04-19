@@ -107,6 +107,10 @@ h1 {
     height: 25px; /* Height of the circle */
     margin-left: auto; /* Pushes the circle to the right */
   }
+
+  .add-task-button:disabled .icon-circle {
+    background-color: #ccc; /* 灰色 */
+  }
 }
 
 .profile-button {
@@ -315,7 +319,13 @@ a:hover {
     @media (max-width: 600px) {
       font-size: 0.8rem; /* Decrease the font size for smaller screens */
     }
+    &:disabled {
+      color: #ccc; /* 灰色，表示禁用状态 */
+      cursor: not-allowed; /* 鼠标指针显示为不允许的符号，表示按钮不可点击 */
+    }
   }
+
+
 
   .task-list {
     display: flex;
