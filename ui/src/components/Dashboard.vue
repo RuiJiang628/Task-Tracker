@@ -18,10 +18,10 @@
           <input
             type="text"
             placeholder="Add title"
-            v-model="selectedTask.text"
+            v-model="selectedTask.title"
           />
           <textarea
-            placeholder="Add description"
+            placeholder="Add description (optional)"
             v-model="selectedTask.description"
           ></textarea>
           <div class="modal-footer">
@@ -52,7 +52,7 @@
             </button>
             <button
               class="save-button"
-              @click="addTask"
+              @click="saveNewTask"
               :disabled="!canSaveNewTask"
               :class="{ 'button-disabled': !canSaveNewTask }"
             >
@@ -122,7 +122,7 @@
             </label>
 
             <!-- Task Text -->
-            <span class="task-text">{{ task.text }}</span>
+            <span class="task-text">{{ task.title }}</span>
           </div>
         </div>
       </section>
@@ -134,7 +134,7 @@
   import { ref, onMounted, computed, provide, onUnmounted } from 'vue';
   import io from 'socket.io-client';
   import axios from 'axios';
-  import { User, Task } from '../data';
+  import { User, Task, addTask } from '../data';
 
   // 响应性状态
   const selectedTask = ref<Task | null>(null);
@@ -142,6 +142,13 @@
   const showModal = ref(false);
   const newTaskTitle = ref("");
   const newTaskDescription = ref("");
+  const newTask = computed(() => {
+    return {
+      title: newTaskTitle.value,
+      description: newTaskDescription.value,
+      checked: false
+    }
+  })
   const filterStatus = ref("All");
   const tasks = ref<Task[]>([
     // 初始化任务...
@@ -191,28 +198,6 @@
     checkAuthentication();
   });
 
-  // 方法
-  // function addTask() {
-  //   if (!newTaskTitle.value.trim()) {
-  //     alert("Task title cannot be empty."); // 或者使用更友好的用户通知方式
-  //     return;
-  //   }
-  //   const newTaskId = tasks.value.reduce((maxId, task) => Math.max(maxId, task.id as number), 0) + 1;
-  //   const newTask: Task = {
-  //     id: newTaskId.toString(),
-  //     title: newTaskTitle.value,
-  //     description: newTaskDescription.value,
-  //     checked: false,
-  //   };
-  //   tasks.value.push(newTask);
-  //   newTaskTitle.value = "";
-  //   newTaskDescription.value = "";
-  //   showModal.value = false;
-  // }
-
-  // 其他方法...
-  // 注意：你需要根据 `Task` 接口调整 `selectTask`、`saveTaskEdits`、`deleteTask` 等方法
-
   // 计算属性
   const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
   const filteredTasks = computed(() => {
@@ -222,8 +207,9 @@
         case "Completed": return task.checked;
         default: return true;
       }
-    });
-  });
+    })
+  })
+
   const taskHeaderTitle = computed(() => {
     switch (filterStatus.value) {
       case "Active": return "Today's Active Tasks";
@@ -232,8 +218,18 @@
     }
   });
 
-  // 如果你需要对外暴露一些属性或方法，可以使用 `defineExpose`，例如：
-  // defineExpose({ addTask, selectedTask });
+  function saveNewTask() {
+    addTask(newTask.value, {
+      onSuccess: (task) => {
+        newTaskTitle.value = ''; 
+        newTaskDescription.value = '';
+        showModal.value = false;
+      },
+      onError: (errorMessage) => {
+        message.value = errorMessage; // Display error message to the user
+      }
+    });
+  }
 </script>
   
 <style scoped lang='scss', src="../assets/styles/Dashboard.scss"></style>

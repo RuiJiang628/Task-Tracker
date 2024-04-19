@@ -85,6 +85,7 @@ io.on('connection', client => {
     client.disconnect()
     return
   }
+
   client.on('saveProfile', async (profileData) => {
     console.log("saveProfile", profileData)
     try {
@@ -103,6 +104,44 @@ io.on('connection', client => {
       // If an error occurs, emit an error event back to the client
       console.error('Error saving profile:', error);
       client.emit('saveError', { status: 'error', error: error.message });
+    }
+  })
+
+  client.on('addTask', async (taskData) => {
+    try {
+      const netID = (client.request as any).session.passport.user.nickname;
+      const user = await db.collection('users').findOne({ netID: netID });
+      if (!user) {
+          client.emit('unauthorized', { message: 'User not found' });
+          return;
+      }
+      // 创建新任务
+      const newTask : Task = {
+        taskID: user.tasks.length > 0 ? Math.max(...user.tasks.map((task: Task) => task.taskID)) + 1 : 0,
+        ...taskData
+      };
+
+      // 使用 $push 操作符将新任务添加到用户的 tasks 数组
+      const updateResult = await db.collection('users').updateOne(
+          { netID: netID },
+          { $push: { tasks: newTask} as any }
+      );
+      console.log("addTask", updateResult)
+
+      if (updateResult.matchedCount === 0) {
+          client.emit('taskError', { message: 'No user found with given ID' });
+          return;
+      }
+
+      if (updateResult.modifiedCount === 0) {
+          client.emit('taskError', { message: 'Task could not be added' });
+          return;
+      }
+
+      client.emit('taskAdded', { message: 'Task added successfully', task: newTask });
+  } catch (error) {
+      console.error('Error adding task:', error);
+      client.emit('taskError', { message: 'Failed to add task', error: error.message });
     }
   })
 })
