@@ -110,7 +110,7 @@ io.on('connection', client => {
   client.on('addTask', async (taskData) => {
     try {
       const netID = (client.request as any).session.passport.user.nickname;
-      const user = await db.collection('users').findOne({ netID: netID });
+      const user = await db.collection('users').findOne({ netID: netID })
       if (!user) {
           client.emit('unauthorized', { message: 'User not found' });
           return;
@@ -126,24 +126,40 @@ io.on('connection', client => {
           { netID: netID },
           { $push: { tasks: newTask} as any }
       );
-      console.log("addTask", updateResult)
-
       if (updateResult.matchedCount === 0) {
           client.emit('taskError', { message: 'No user found with given ID' });
           return;
       }
-
       if (updateResult.modifiedCount === 0) {
           client.emit('taskError', { message: 'Task could not be added' });
           return;
       }
-
       client.emit('taskAdded', { message: 'Task added successfully', task: newTask });
   } catch (error) {
       console.error('Error adding task:', error);
       client.emit('taskError', { message: 'Failed to add task', error: error.message });
     }
   })
+
+  client.on('getTasks', async () => {
+    if ((client.request as any).session.passport && (client.request as any).session.passport.user) {
+      const netID = (client.request as any).session.passport.user.nickname;
+      try {
+        const user = await db.collection('users').findOne({ netID: netID })
+        if (!user) {
+          client.emit('unauthorized', { message: 'User not found' });
+          return;
+        }
+        client.emit('tasksFetched', user.tasks); // 发送任务数据给客户端
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+        client.emit('taskError', { message: 'Failed to fetch tasks' });
+      }
+    } else {
+      client.emit('unauthorized', { message: 'User is not authenticated' });
+    }
+  })
+
 })
 
 // Connect to MongoDB and start the server

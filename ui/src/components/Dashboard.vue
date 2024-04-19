@@ -150,9 +150,7 @@
     }
   })
   const filterStatus = ref("All");
-  const tasks = ref<Task[]>([
-    // 初始化任务...
-  ]);
+  const tasks = ref([]);
   const isLoggedIn = ref(false);
 
   const socket = io(); // 使用你的Socket.IO服务器地址
@@ -172,14 +170,6 @@
   
   let intervalId;
 
-  onMounted(() => {
-    intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
-  })
-
-  onUnmounted(() => {
-    clearInterval(intervalId); // 清除计时器防止内存泄漏
-  })
-
   async function checkAuthentication() {
     try {
       const response = await axios.get('/api/check-auth', { withCredentials: true });
@@ -193,10 +183,6 @@
       console.error('Authentication check failed:', error);
     }
   }
-
-  onMounted(() => {
-    checkAuthentication();
-  });
 
   // 计算属性
   const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
@@ -224,11 +210,41 @@
         newTaskTitle.value = ''; 
         newTaskDescription.value = '';
         showModal.value = false;
+        fetchTasks();
       },
       onError: (errorMessage) => {
         message.value = errorMessage; // Display error message to the user
       }
     });
+  }
+
+
+  // Fetch tasks from the server
+  onMounted(() => {
+    setupSocketListeners();
+    checkAuthentication();
+    intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
+  })
+
+  onUnmounted(() => {
+    clearInterval(intervalId); // 清除计时器防止内存泄漏
+  })
+
+  function fetchTasks() {
+    socket.emit('getTasks'); // 请求任务数据
+  }
+
+  function setupSocketListeners() {
+    socket.on('tasksFetched', (fetchedTasks) => {
+      tasks.value = fetchedTasks; // 更新任务数据
+    });
+
+    socket.on('taskError', (data) => {
+      console.error(data.message); // 处理错误情况
+    });
+
+    // 请求任务数据
+    fetchTasks();
   }
 </script>
   
