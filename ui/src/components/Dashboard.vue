@@ -43,7 +43,7 @@
         <div class="modal-content">
           <input type="text" placeholder="Add title" v-model="newTaskTitle" />
           <textarea
-            placeholder="Add description"
+            placeholder="Add description (optional)"
             v-model="newTaskDescription"
           ></textarea>
           <div class="add-modal-actions">
