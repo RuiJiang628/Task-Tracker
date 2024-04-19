@@ -33,10 +33,17 @@
               Delete
             </button>
             <div class="modal-actions">
-              <button class="cancel-button" @click="showEditModal = false">
+              <button class="cancel-button" @click="closeEditModal">
                 Cancel
               </button>
-              <button class="save-button" @click="saveTaskEdits">Save</button>
+              <button
+                class="save-button"
+                @click="saveTaskEdits"
+                :disabled="!canSaveTaskEdits"
+                :class="{ 'button-disabled': !canSaveTaskEdits }"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
@@ -142,7 +149,6 @@ import io from "socket.io-client";
 import axios from "axios";
 import { User, Task, addTask } from "../data";
 
-// 响应性状态
 const selectedTask = ref<Task | null>(null);
 const showEditModal = ref(false);
 const showModal = ref(false);
@@ -211,6 +217,12 @@ async function checkAuthentication() {
 
 // 计算属性
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
+const canSaveTaskEdits = computed(() => {
+  if (!selectedTask.value) {
+    return false;
+  }
+  return selectedTask.value.title.trim().length > 0;
+});
 const filteredTasks = computed(() => {
   return tasks.value.filter((task) => {
     switch (filterStatus.value) {
@@ -254,6 +266,33 @@ function toggleTaskChecked(task: Task) {
   socket.emit("updateTaskStatus", {
     taskID: task.taskID,
     checked: task.checked,
+  });
+}
+
+function saveTaskEdits() {
+  if (!selectedTask.value) {
+    console.error("No task selected to save.");
+    return;
+  }
+
+  // Emit event to update task in the backend with the current state of selectedTask
+  socket.emit("updateTask", {
+    taskID: selectedTask.value.taskID,
+    title: selectedTask.value.title,
+    description: selectedTask.value.description,
+    checked: selectedTask.value.checked,
+  });
+
+  // 监听后端响应
+  socket.once("taskUpdated", (response) => {
+    console.log("Task update success:", response);
+    fetchTasks(); // Re-fetch tasks to refresh the list
+    showEditModal.value = false; // 关闭模态窗口
+  });
+
+  socket.once("taskError", (error) => {
+    console.error("Error updating task:", error.message);
+    alert(`Failed to update task: ${error.message}`);
   });
 }
 

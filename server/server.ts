@@ -204,6 +204,35 @@ io.on("connection", (client) => {
     }
   });
 
+  client.on("updateTask", async (taskData) => {
+    try {
+      const { taskID, title, description, checked } = taskData;
+      const netID = (client.request as any).session.passport.user.nickname;
+
+      // Update the task in MongoDB
+      const updateResult = await db.collection("users").updateOne(
+        { netID: netID, "tasks.taskID": taskID },
+        {
+          $set: {
+            "tasks.$.title": title,
+            "tasks.$.description": description,
+          },
+        }
+      );
+
+      if (updateResult.modifiedCount === 0) {
+        throw new Error("No task was updated or task not found.");
+      }
+
+      client.emit("taskUpdated", { message: "Task successfully updated." });
+    } catch (error) {
+      client.emit("taskError", {
+        message: "Failed to update task",
+        error: error.message,
+      });
+    }
+  });
+
   // Delete task event
   // client.on("deleteTask", async ({ taskId }) => {
   //   try {
