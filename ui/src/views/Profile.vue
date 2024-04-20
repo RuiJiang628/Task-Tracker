@@ -112,7 +112,6 @@ const errors = ref({
 } as Errors);
 provide("errors", errors);
 provide("user", user);
-provide("userCopy", originalUser);
 const socket = io();
 
 onMounted(async () => {

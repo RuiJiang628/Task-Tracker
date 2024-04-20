@@ -217,12 +217,14 @@ async function checkAuthentication() {
 
 // 计算属性
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
+
 const canSaveTaskEdits = computed(() => {
   if (!selectedTask.value) {
     return false;
   }
   return selectedTask.value.title.trim().length > 0;
 });
+
 const filteredTasks = computed(() => {
   return tasks.value.filter((task) => {
     switch (filterStatus.value) {

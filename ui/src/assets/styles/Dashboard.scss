@@ -562,3 +562,9 @@ select {
   /* 确保按钮在禁用状态下看起来不是互动的 */
   pointer-events: none;
 }
+
+.error-message {
+  font-family: "lexend";
+  color: #d9534f;
+  font-size: 14px;
+}
