@@ -54,10 +54,14 @@
             }}</span>
             <div class="modal-footer">
               <div class="modal-actions">
-                <button class="cancel-button" @click="showEditUserModal = false">
+                <button class="cancel-button" @click="cancelEdit">
                   Cancel
                 </button>
-                <button class="save-button" @click="saveUserEdits">
+                <button 
+                class="save-button" 
+                @click="saveUserEdits" 
+                :disabled="!UserChanges"
+                :class="{ 'button-disabled': !UserChanges}">
                   Save
                 </button>
               </div>
@@ -82,38 +86,67 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted, provide, watch, computed } from "vue";
+import { onMounted, ref, onUnmounted, provide, watch, computed, reactive } from "vue";
 import { User, Errors} from "../data";
 import { io } from "socket.io-client";
 
-const socket = io(); // 使用你的Socket.IO服务器地址
-const users = ref<User[]>([]) // 用于存储从服务器接收到的用户数据
-const error = ref(null);
+// Socket connection
+const socket = io();
 
-const errors = ref({
-  userNameError: "",
-  emailError: "",
-  birthDateError: "",
-} as Errors);
-
-provide("errors", errors);
-
-let intervalId: any
-
-const showEditUserModal = ref(false);
+// Reactive state
+const users = ref<User[]>([]);
+const originalUserData = ref<User>();
 const selectedUser = ref<User>();
+const showEditUserModal = ref(false);
+const error = ref("");
+const errors = ref({ userNameError: "", emailError: "", birthDateError: "" });
 
-// 方法用于在用户点击用户列表项时设置被选中的用户
+// Date for the header
+const currentDate = computed(() => {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+});
+
+const canSaveUserEdits = computed(() => {
+  if (!selectedUser.value) {
+    return false;
+  }
+  
+});
+
+// Select user to edit
 const selectUser = (user: User) => {
-  selectedUser.value = user;  // 将点击的用户设置为 selectedUser，从而可以编辑
+  selectedUser.value = { ...user }; // 深拷贝用户数据
+  Object.assign(originalUserData, user); // 保存原始数据
   showEditUserModal.value = true; // 打开编辑用户的弹窗
-  console.log('Selected user:', user);
 };
 
-function closeEditUserModal() {
+const cancelEdit = () => {
+  if (selectedUser.value && originalUserData) {
+    Object.assign(selectedUser.value, originalUserData); // 恢复原始数据
+  }
   showEditUserModal.value = false;
+};
+
+// Close edit modal
+const closeEditUserModal = () => {
+  showEditUserModal.value = false;
+};
+
+// Save user edits
+const saveUserEdits = () => {
+  if (selectedUser.value) {
+    socket.emit("updateUser", selectedUser.value);
+  }
+  showEditUserModal.value = false;
+};
+
+function logout() {
+  (window.document.getElementById("logoutForm") as HTMLFormElement).submit();
 }
 
+// Watch for changes in the selected user
 watch(
   selectedUser,
   (newValue) => {
@@ -130,38 +163,22 @@ watch(
   { deep: true }
 );
 
-function logout() {
-  (window.document.getElementById("logoutForm") as HTMLFormElement).submit();
-}
+const UserChanges = computed(() => {
+  return (
+    JSON.stringify(selectedUser.value) !== JSON.stringify(originalUserData.value) &&
+    !hasFormErrors.value
+  );
+});
 
-const currentDate = ref(new Date().toLocaleDateString('en-US', {
-  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-}));
+const hasFormErrors = computed(() => {
+  return (
+    errors.value.userNameError !== "" ||
+    errors.value.emailError !== ""
+  );
+})
 
-function updateDate() {
-  currentDate.value = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
-}
-
-onMounted(() => {  
-  intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
-  socket.emit('fetchAllUsers');
-  socket.on('usersFetched', fetchedUsers => {
-    console.log('Received users:', fetchedUsers);
-    users.value = fetchedUsers;
-  });
-
-  socket.on('unauthorized', message => {
-    console.error('Unauthorized:', message);
-    error.value = message.message;
-  });
-  socket.on('error', data => {
-    console.error('Error:', data.message);
-    error.value = data.message;
-  })
-
-  socket.on('userUpdated', updatedUser => {
+// Socket event listeners
+socket.on('usersUpdated', updatedUser => {
     console.log('Received update for user:', updatedUser);
     const index = users.value.findIndex(u => (u as any)._id === updatedUser._id);
     if (index !== -1) {
@@ -170,12 +187,24 @@ onMounted(() => {
       users.value.push(updatedUser); // 或者添加新用户
     }
   })
+  
+// Component lifecycle
+onMounted(() => {
+  // Fetch users when the component is mounted
+  socket.emit('fetchAllUsers');
+
+  // Set up event listeners for user updates
+  socket.on('usersFetched', (fetchedUsers) => {
+    users.value = fetchedUsers;
+  });
 });
 
 onUnmounted(() => {
-  clearInterval(intervalId); // 清除计时器防止内存泄漏
-})
+  // Clean up event listeners when the component is unmounted
+  socket.off('usersFetched');
+  socket.off('usersUpdated');
+});
 
 </script>
 
-<style scoped lang="scss" , src="../assets/styles/Dashboard.scss"></style>
+<style scoped lang="scss" src="../assets/styles/Dashboard.scss"></style>

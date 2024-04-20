@@ -3,7 +3,7 @@ import { createServer } from "http";
 import bodyParser from "body-parser";
 import pino from "pino";
 import expressPinoLogger from "express-pino-logger";
-import { MongoClient, Db } from "mongodb";
+import { MongoClient, Db, ObjectId } from "mongodb";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Issuer, Strategy, generators } from "openid-client";
@@ -276,6 +276,28 @@ io.on("connection", (client) => {
     }
   })
 
+  client.on('updateUser', async (userData) => {
+    try {
+      // 假设 userData 包含 _id 和需要更新的字段
+      const { _id, ...updateData } = userData;
+      // 进行数据库操作
+      const collection = db.collection('users');
+      const result = await collection.updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: updateData }
+      );
+      if (result.modifiedCount === 0) {
+        // 如果没有更新任何文档，可能是因为找不到用户
+        throw new Error('No user found with the given ID');
+      }
+      // 从数据库获取最新的用户数据并发回给客户端
+      const updatedUser = await collection.findOne({ _id: _id });
+      client.emit('userUpdated', updatedUser);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      client.emit('updateError', { message: error.message });
+    }
+  });
 })
 
 // Connect to MongoDB and start the server
@@ -343,8 +365,8 @@ client.connect().then(async () => {
               .collection("users")
               .insertOne(newUser);
             if (insertResult.acknowledged) {
-              io.emit('userUpdated', newUser);
-              console.log("userUpdated", newUser)
+              io.emit('usersUpdated', newUser);
+              console.log("usersUpdated", newUser)
               logger.info('New user created with ID:', insertResult.insertedId);
             } else {
               logger.error("Failed to insert new user");
