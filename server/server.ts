@@ -88,27 +88,22 @@ io.on("connection", (client) => {
 
   client.on("saveProfile", async (profileData) => {
     console.log("saveProfile", profileData);
-    try {
-      // Assuming profileData contains an 'id' to identify the user document
-      const { _id, netID, ...updateData } = profileData;
+    const { _id, version, ...updateData } = profileData;
 
-      // Update the user profile in the database
-      const result = await db
-        .collection("users")
-        .updateOne({ netID: netID }, { $set: updateData });
+    const result = await db.collection("users").updateOne(
+      { _id: new ObjectId(_id), version: version },
+      { $set: updateData, $inc: { version: 1 } }
+    );
 
-      if (result.modifiedCount === 0) {
-        throw new Error(
-          "No document found with the given id or no changes made."
-        );
-      }
-      // On successful update, emit a success event back to the client
-      client.emit("profileSaved", { status: "success" });
-    } catch (error) {
-      // If an error occurs, emit an error event back to the client
-      console.error("Error saving profile:", error);
-      client.emit("saveError", { status: "error", error: error.message });
+    if (result.modifiedCount === 0) {
+        console.error("Error saving profile: No user found with the given ID or version mismatch.");
+        client.emit("saveError", { status: "error", message: "Update failed due to version mismatch or user not found." });
+        return;
     }
+
+    // 获取并发送更新后的用户数据
+    const updatedUser = await db.collection("users").findOne({ _id: new ObjectId(_id) });
+    client.emit("profileSaved", updatedUser);
   });
 
   // Add task event
@@ -314,20 +309,16 @@ io.on("connection", (client) => {
 
   client.on('updateUser', async (userData) => {
     try {
-      // 假设 userData 包含 _id 和需要更新的字段
-      const { _id, ...updateData } = userData;
-      // 进行数据库操作
+      const { _id, version, ...updateData } = userData;
       const collection = db.collection('users');
       const result = await collection.updateOne(
-        { _id: new ObjectId(_id) },
-        { $set: updateData }
+        { _id: new ObjectId(_id), version: version },
+        { $set: updateData, $inc: { version: 1 } }
       );
       if (result.modifiedCount === 0) {
-        // 如果没有更新任何文档，可能是因为找不到用户
-        throw new Error('No user found with the given ID');
+        throw new Error('No user found with the given ID or version mismatch');
       }
-      // 从数据库获取最新的用户数据并发回给客户端
-      const updatedUser = await collection.findOne({ _id: _id });
+      const updatedUser = await collection.findOne({ _id: new ObjectId(_id) });
       client.emit('userUpdated', updatedUser);
     } catch (error) {
       console.error('Error updating user:', error);
@@ -382,6 +373,7 @@ client.connect().then(async () => {
             birthDate: null,
             tasks: [],
             role: userInfo.role,
+            version: 0,
           };
 
           if (userInfo.role === "admin") {

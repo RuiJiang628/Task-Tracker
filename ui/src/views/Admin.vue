@@ -86,67 +86,97 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted, provide, watch, computed, reactive } from "vue";
-import { User, Errors} from "../data";
+import { onMounted, ref, computed, watch, nextTick } from "vue";
+import { User, Errors } from "../data";
 import { io } from "socket.io-client";
 
-// Socket connection
 const socket = io();
-
-// Reactive state
 const users = ref<User[]>([]);
-const originalUserData = ref<User>();
-const selectedUser = ref<User>();
+const selectedUser = ref<User | null>(null);
+const originalUserData = ref<User | null>(null);
 const showEditUserModal = ref(false);
-const error = ref("");
-const errors = ref({ userNameError: "", emailError: "", birthDateError: "" });
+const errors = ref({ userNameError: "", emailError: "" });
 
-// Date for the header
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 });
 
-const canSaveUserEdits = computed(() => {
-  if (!selectedUser.value) {
-    return false;
-  }
-  
-});
-
-// Select user to edit
 const selectUser = (user: User) => {
-  selectedUser.value = { ...user }; // 深拷贝用户数据
-  Object.assign(originalUserData, user); // 保存原始数据
-  showEditUserModal.value = true; // 打开编辑用户的弹窗
+  selectedUser.value = { ...user };
+  originalUserData.value = { ...user }; // 深拷贝原始数据
+  showEditUserModal.value = true;
 };
 
+const saveUserEdits = () => {
+  if (selectedUser.value) {
+    socket.emit("updateUser", {
+      ...selectedUser.value,
+      version: selectedUser.value.version // 确保包含版本号
+    });
+  }
+};
+
+const UserChanges = computed(() => {
+  return JSON.stringify(selectedUser.value) !== JSON.stringify(originalUserData.value) &&
+         !hasFormErrors.value;
+});
+
+const hasFormErrors = computed(() => {
+  return errors.value.userNameError !== "" || errors.value.emailError !== "";
+});
+
+socket.on('userUpdated', (updatedUser) => {
+  const index = users.value.findIndex(u => u._id === updatedUser._id);
+  if (index !== -1) {
+    users.value[index] = updatedUser; // 更新用户列表中的数据
+    if (selectedUser.value && selectedUser.value._id === updatedUser._id) {
+      selectedUser.value = { ...updatedUser }; // 更新选中的用户数据
+      originalUserData.value = { ...updatedUser }; // 更新原始数据
+    }
+  }
+  showEditUserModal.value = false; // 关闭编辑模态框
+});
+
+socket.on('usersUpdated', updatedUser => {
+  console.log('Received update for user:', updatedUser);
+  const index = users.value.findIndex(u => (u as any)._id === updatedUser._id);
+  if (index !== -1) {
+    users.value[index] = updatedUser; // 更新特定用户
+  } else {
+    users.value.push(updatedUser); // 或者添加新用户
+  }
+})
+
+socket.on('updateError', (error) => {
+  console.error('Error updating user:', error.message);
+  alert(`Update failed: ${error.message}. Please refresh data.`);
+});
+
+socket.on('usersFetched', (fetchedUsers) => {
+  users.value = fetchedUsers;
+});
+
+onMounted(() => {
+  socket.emit('fetchAllUsers');
+});
+
 const cancelEdit = () => {
-  if (selectedUser.value && originalUserData) {
-    Object.assign(selectedUser.value, originalUserData); // 恢复原始数据
+  if (selectedUser.value && originalUserData.value) {
+    selectedUser.value = { ...originalUserData.value }; // 恢复到编辑前的原始数据
   }
   showEditUserModal.value = false;
 };
 
-// Close edit modal
 const closeEditUserModal = () => {
   showEditUserModal.value = false;
 };
 
-// Save user edits
-const saveUserEdits = () => {
-  if (selectedUser.value) {
-    socket.emit("updateUser", selectedUser.value);
-  }
-  showEditUserModal.value = false;
+const logout = () => {
+  (window.document.getElementById("logoutForm") as HTMLFormElement).submit();
 };
 
-function logout() {
-  (window.document.getElementById("logoutForm") as HTMLFormElement).submit();
-}
-
-// Watch for changes in the selected user
 watch(
   selectedUser,
   (newValue) => {
@@ -163,48 +193,7 @@ watch(
   { deep: true }
 );
 
-const UserChanges = computed(() => {
-  return (
-    JSON.stringify(selectedUser.value) !== JSON.stringify(originalUserData.value) &&
-    !hasFormErrors.value
-  );
-});
-
-const hasFormErrors = computed(() => {
-  return (
-    errors.value.userNameError !== "" ||
-    errors.value.emailError !== ""
-  );
-})
-
-// Socket event listeners
-socket.on('usersUpdated', updatedUser => {
-    console.log('Received update for user:', updatedUser);
-    const index = users.value.findIndex(u => (u as any)._id === updatedUser._id);
-    if (index !== -1) {
-      users.value[index] = updatedUser; // 更新特定用户
-    } else {
-      users.value.push(updatedUser); // 或者添加新用户
-    }
-  })
-  
-// Component lifecycle
-onMounted(() => {
-  // Fetch users when the component is mounted
-  socket.emit('fetchAllUsers');
-
-  // Set up event listeners for user updates
-  socket.on('usersFetched', (fetchedUsers) => {
-    users.value = fetchedUsers;
-  });
-});
-
-onUnmounted(() => {
-  // Clean up event listeners when the component is unmounted
-  socket.off('usersFetched');
-  socket.off('usersUpdated');
-});
-
 </script>
+
 
 <style scoped lang="scss" src="../assets/styles/Dashboard.scss"></style>

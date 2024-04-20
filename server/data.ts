@@ -19,4 +19,5 @@ export interface User {
   birthDate: Date | null;
   tasks: Task[];
   role: "user" | "admin";
+  version: number;
 }

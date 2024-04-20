@@ -119,8 +119,10 @@ onMounted(async () => {
   user.value = userData;
   originalUser.value = JSON.parse(JSON.stringify(userData));
 
-  socket.on("profileSaved", () => {
-    originalUser.value = JSON.parse(JSON.stringify(user.value));
+  socket.on("profileSaved", (updatedUser) => {
+    // 成功保存后更新本地存储的用户信息和版本号
+    user.value = updatedUser;
+    originalUser.value = JSON.parse(JSON.stringify(updatedUser)); // 更新原始用户数据
   });
 
   socket.on("saveError", (error) => {
@@ -194,8 +196,8 @@ function logout() {
 const submitForm = () => {
   if (!hasFormErrors.value) {
     console.log("Saving profile:", user.value);
-    socket.emit("saveProfile", user.value);
-    originalUser.value = JSON.parse(JSON.stringify(user.value));
+    // 将当前的版本号发送给服务器
+    socket.emit("saveProfile", { ...user.value, version: user.value.version });
   } else {
     alert("Please correct the errors before saving.");
   }
