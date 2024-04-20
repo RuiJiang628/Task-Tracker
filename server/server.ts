@@ -13,13 +13,20 @@ import { Strategy as CustomStrategy } from "passport-custom";
 import { Server } from "socket.io";
 import { gitlab } from "./secrets";
 import { User, Task } from "./data";
+import dotenv from 'dotenv';
+const result = dotenv.config({ path: '../.env' });
 
 const HOST = process.env.HOST || "127.0.0.1";
-const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY;
+const DISABLE_SECURITY = process.env.DISABLE_SECURITY;
 const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
 const client = new MongoClient(mongoUrl);
 const port = parseInt(process.env.PORT) || 8193;
 let db: Db;
+
+const passportStrategies = [
+  ...(DISABLE_SECURITY ? ["disable-security"] : []),
+  "oidc",
+]
 
 const OPERATOR_GROUP_ID = "oidc-card-game";
 
@@ -72,10 +79,6 @@ passport.deserializeUser((user: any, done) => {
 const wrap = (middleware: any) => (socket: any, next: any) =>
   middleware(socket.request, {}, next);
 io.use(wrap(sessionMiddleware));
-
-// // Express routes
-// app.get('/api/login', passport.authenticate('oidc', { successReturnToOrRedirect: "/dashboard", failureRedirect: '/' }));
-// app.get('/api/login-callback', passport.authenticate('oidc', { successReturnToOrRedirect: "/dashboard", failureRedirect: '/' }));
 
 // Socket.IO events
 io.on("connection", (client) => {
@@ -327,19 +330,99 @@ io.on("connection", (client) => {
   });
 })
 
+app.get("/api/check-auth", (req, res) => {
+  // Passport adds the isAuthenticated method to the request object
+  if (req.isAuthenticated()) {
+    // If the user is authenticated, return a successful response
+    res.status(200).json({ message: "User is authenticated" });
+  } else {
+    // If the user is not authenticated, return an unauthorized status
+    res.status(401).json({ message: "User is not authenticated" });
+  }
+});
+
+app.get(
+  "/api/login",
+  passport.authenticate(passportStrategies, { failureRedirect: "/api/login" }),
+  (req, res) => res.redirect("/")
+);
+
+app.get(
+  "/api/login-callback",
+  passport.authenticate(passportStrategies, { failureRedirect: "/api/login" }),
+  (req, res) => {
+    // 检查用户的角色并决定重定向的URL
+    console.log("login-callback", (req.user as User).role);
+    if ((req.user as User).role === "admin") {
+      res.redirect("/admin");
+    } else {
+      res.redirect("/dashboard");
+    }
+  }
+);
+
+app.get("/api/user", async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "User is not authenticated" });
+  }
+
+  const netID = (req.user as any).nickname;
+  try {
+    const userInDb = await db.collection("users").findOne({ netID: netID });
+    if (userInDb) {
+      return res.json(userInDb);
+    } else {
+      return res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user from MongoDB", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/admin", async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Admin is not authenticated" });
+  }
+  const netID = (req.user as any).nickname;
+  try {
+    const userInDb = await db
+      .collection("admins")
+      .findOne({ netID: netID });
+    if (userInDb) {
+      return res.json(userInDb);
+    } else {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching admin from MongoDB", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
 // Connect to MongoDB and start the server
 client.connect().then(async () => {
   logger.info("connected successfully to MongoDB");
   db = client.db("task_tracker");
 
-  if (DISABLE_SECURITY) {
-    passport.use(
-      "oidc",
-      new CustomStrategy((req, done) =>
-        done(null, { preferred_username: req.query.user, role: req.query.role })
-      )
-    );
-  } else {
+  passport.use("disable-security", new CustomStrategy((req, done) => {
+    if (req.query.key !== DISABLE_SECURITY) {
+      console.log("you must supply ?key=" + DISABLE_SECURITY + " to log in via DISABLE_SECURITY")
+      done(null, false)
+    } else {
+      done(null, { preferred_username: req.query.user, roles: [].concat(req.query.role) })
+    }
+  }))
+  {
     const issuer = await Issuer.discover("https://coursework.cs.duke.edu/");
     const client = new issuer.Client(gitlab);
 
@@ -407,88 +490,9 @@ client.connect().then(async () => {
         return done(error);
       }
     }
-
     passport.use("oidc", new Strategy({ client, params }, verify));
-
-    app.get("/api/check-auth", (req, res) => {
-      // Passport adds the isAuthenticated method to the request object
-      if (req.isAuthenticated()) {
-        // If the user is authenticated, return a successful response
-        res.status(200).json({ message: "User is authenticated" });
-      } else {
-        // If the user is not authenticated, return an unauthorized status
-        res.status(401).json({ message: "User is not authenticated" });
-      }
-    });
-
-    app.get(
-      "/api/login",
-      passport.authenticate("oidc", { failureRedirect: "/api/login" }),
-      (req, res) => res.redirect("/")
-    );
-
-    app.get(
-      "/api/login-callback",
-      passport.authenticate("oidc", { failureRedirect: "/api/login" }),
-      (req, res) => {
-        // 检查用户的角色并决定重定向的URL
-        console.log("login-callback", (req.user as User).role);
-        if ((req.user as User).role === "admin") {
-          res.redirect("/admin");
-        } else {
-          res.redirect("/dashboard");
-        }
-      }
-    );
-
-    app.get("/api/user", async (req, res) => {
-      if (!req.user) {
-        return res.status(401).json({ message: "User is not authenticated" });
-      }
-
-      const netID = (req.user as any).nickname;
-      try {
-        const userInDb = await db.collection("users").findOne({ netID: netID });
-        if (userInDb) {
-          return res.json(userInDb);
-        } else {
-          return res.status(404).json({ message: "User not found" });
-        }
-      } catch (error) {
-        console.error("Error fetching user from MongoDB", error);
-        return res.status(500).json({ message: "Internal server error" });
-      }
-    });
-
-    app.get("/api/admin", async (req, res) => {
-      if (!req.user) {
-        return res.status(401).json({ message: "Admin is not authenticated" });
-      }
-      const netID = (req.user as any).nickname;
-      try {
-        const userInDb = await db
-          .collection("admins")
-          .findOne({ netID: netID });
-        if (userInDb) {
-          return res.json(userInDb);
-        } else {
-          return res.status(404).json({ message: "Admin not found" });
-        }
-      } catch (error) {
-        console.error("Error fetching admin from MongoDB", error);
-        return res.status(500).json({ message: "Internal server error" });
-      }
-    });
-
-    app.post("/api/logout", (req, res, next) => {
-      req.logout((err) => {
-        if (err) {
-          return next(err);
-        }
-        res.redirect("/");
-      });
-    });
   }
+
   // start server
   server.listen(port);
   logger.info(`Task Tracker server listening on port ${port}`);
