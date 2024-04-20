@@ -204,9 +204,10 @@ io.on("connection", (client) => {
     }
   });
 
+  // Update task event
   client.on("updateTask", async (taskData) => {
     try {
-      const { taskID, title, description, checked } = taskData;
+      const { taskID, title, description } = taskData;
       const netID = (client.request as any).session.passport.user.nickname;
 
       // Update the task in MongoDB
@@ -220,9 +221,9 @@ io.on("connection", (client) => {
         }
       );
 
-      if (updateResult.modifiedCount === 0) {
-        throw new Error("No task was updated or task not found.");
-      }
+      // if (updateResult.modifiedCount === 0) {
+      //   throw new Error("No task was updated or task not found.");
+      // }
 
       client.emit("taskUpdated", { message: "Task successfully updated." });
     } catch (error) {

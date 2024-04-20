@@ -21,21 +21,19 @@
           <!-- Use the selectedTask for binding the inputs -->
           <input
             type="text"
-            placeholder="Add title"
-            v-model="selectedTask.title"
+            placeholder="Edit title"
+            v-model="editTaskData.title"
           />
           <textarea
             placeholder="Add description (optional)"
-            v-model="selectedTask.description"
+            v-model="editTaskData.description"
           ></textarea>
           <div class="modal-footer">
             <button class="delete-button" @click="deleteTask(selectedTask.id)">
               Delete
             </button>
             <div class="modal-actions">
-              <button class="cancel-button" @click="closeEditModal">
-                Cancel
-              </button>
+              <button class="cancel-button" @click="cancelEdit">Cancel</button>
               <button
                 class="save-button"
                 @click="saveTaskEdits"
@@ -150,6 +148,7 @@ import axios from "axios";
 import { User, Task, addTask } from "../data";
 
 const selectedTask = ref<Task | null>(null);
+const editTaskData = ref<Task | null>(null);
 const showEditModal = ref(false);
 const showModal = ref(false);
 const newTaskTitle = ref("");
@@ -189,8 +188,14 @@ function updateDate() {
 }
 
 function selectTask(task: Task) {
-  selectedTask.value = task; // select the task
-  showEditModal.value = true; // show the edit task modal window
+  selectedTask.value = task;
+  editTaskData.value = { ...task };
+  showEditModal.value = true;
+}
+
+function cancelEdit() {
+  editTaskData.value = null;
+  showEditModal.value = false;
 }
 
 function closeEditModal() {
@@ -270,24 +275,27 @@ function toggleTaskChecked(task: Task) {
 }
 
 function saveTaskEdits() {
-  if (!selectedTask.value) {
-    console.error("No task selected to save.");
+  if (!editTaskData.value || !selectedTask.value) {
+    console.error("No task selected or data to save.");
     return;
   }
 
-  // Emit event to update task in the backend with the current state of selectedTask
   socket.emit("updateTask", {
     taskID: selectedTask.value.taskID,
-    title: selectedTask.value.title,
-    description: selectedTask.value.description,
-    checked: selectedTask.value.checked,
+    title: editTaskData.value.title,
+    description: editTaskData.value.description,
   });
+  console.log(
+    "Task update request sent:",
+    selectedTask.value.taskID,
+    editTaskData.value
+  );
 
-  // 监听后端响应
   socket.once("taskUpdated", (response) => {
     console.log("Task update success:", response);
-    fetchTasks(); // Re-fetch tasks to refresh the list
-    showEditModal.value = false; // 关闭模态窗口
+    showEditModal.value = false; // 关闭编辑模态窗口
+    editTaskData.value = null; // 清空编辑数据
+    fetchTasks();
   });
 
   socket.once("taskError", (error) => {
