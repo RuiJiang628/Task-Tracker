@@ -241,7 +241,7 @@ const canSaveTaskEdits = computed(() => {
   if (!selectedTask.value) {
     return false;
   }
-  return selectedTask.value.title.trim().length > 0;
+  return editTaskData.value.title.trim().length > 0;
 });
 
 // Enable delete all button
