@@ -127,7 +127,10 @@
             @click="selectTask(task)"
           >
             <!-- Custom Checkbox -->
-            <label class="custom-checkbox" @click="toggleTaskChecked(task)">
+            <label
+              class="custom-checkbox"
+              @click.stop="toggleTaskChecked(task)"
+            >
               <input type="checkbox" v-model="task.checked" />
               <span class="checkbox-style"></span>
             </label>
@@ -199,7 +202,7 @@ function cancelEdit() {
 }
 
 function closeEditModal() {
-  showEditModal.value = false; // close the edit task modal window
+  showEditModal.value = false;
 }
 
 let intervalId: any;
@@ -220,7 +223,6 @@ async function checkAuthentication() {
   }
 }
 
-// 计算属性
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
 const canSaveTaskEdits = computed(() => {
   if (!selectedTask.value) {
@@ -293,8 +295,8 @@ function saveTaskEdits() {
 
   socket.once("taskUpdated", (response) => {
     console.log("Task update success:", response);
-    showEditModal.value = false; // 关闭编辑模态窗口
-    editTaskData.value = null; // 清空编辑数据
+    showEditModal.value = false;
+    editTaskData.value = null;
     fetchTasks();
   });
 
@@ -304,18 +306,27 @@ function saveTaskEdits() {
   });
 }
 
-// 删除任务的方法
-// function deleteTask(taskId) {
-//   socket.emit("deleteTask", taskId);
-//   socket.on("taskDeleted", () => {
-//     tasks.value = tasks.value.filter((task) => task.id !== taskId);
-//     alert("Task successfully deleted.");
-//   });
-//   socket.on("taskError", (error) => {
-//     console.error("Error deleting task:", error.message);
-//     alert(`Failed to delete task: ${error.message}`);
-//   });
-// }
+function deleteTask() {
+  if (!selectedTask.value) {
+    console.error("No task selected.");
+    return;
+  }
+
+  socket.emit("deleteTask", { taskID: selectedTask.value.taskID });
+
+  socket.on("taskDeleted", () => {
+    showEditModal.value = false;
+    tasks.value = tasks.value.filter(
+      (task) => task.taskID !== selectedTask.value.taskID
+    );
+    fetchTasks();
+  });
+
+  socket.on("taskError", (error) => {
+    console.error("Error deleting task:", error.message);
+    alert(`Failed to delete task: ${error.message}`);
+  });
+}
 
 // Fetch tasks from the server
 onMounted(() => {
@@ -341,11 +352,6 @@ function setupSocketListeners() {
   socket.on("taskError", (data) => {
     console.error(data.message);
   });
-
-  // socket.on("taskDeleted", (taskId) => {
-  //   tasks.value = tasks.value.filter((task) => task.id !== taskId);
-  //   alert("Task has been successfully deleted.");
-  // });
 
   // 请求任务数据
   fetchTasks();
