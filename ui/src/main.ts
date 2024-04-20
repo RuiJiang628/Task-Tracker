@@ -30,7 +30,19 @@ const routes = [
   },
   { path: "/", component: Base },
   // { path: "/register", component: Register },
-  { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true }},
+  { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true },
+    beforeEnter: async (to, from, next) => {
+      try {
+        // Make an API call to get the user information
+        const response = await fetch('/api/user', { credentials: 'include' });
+        if (!response.ok) next('/admin');
+        else next(); // If user is an admin, allow access
+      } catch (error) {
+        // In case of an error or if not authenticated, redirect to the login page
+        next('/');
+      }
+    }
+  },
   { path: "/profile", component: Profile, meta: { requiresAuth: true }},
   { path: '/:pathMatch(.*)*', 
     beforeEnter: async (to, from, next) => {
