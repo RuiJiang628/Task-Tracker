@@ -263,13 +263,13 @@ io.on("connection", (client) => {
 
       switch (taskData.status) {
         case "All":
-          updateQuery = { $set: { tasks: [] } }; // 清空所有任务
+          updateQuery = { $set: { tasks: [] } }; // delete all tasks
           break;
         case "Active":
-          updateQuery = { $pull: { tasks: { checked: false } } }; // 删除所有未完成的任务
+          updateQuery = { $pull: { tasks: { checked: false } } }; // delete all active tasks
           break;
         case "Completed":
-          updateQuery = { $pull: { tasks: { checked: true } } }; // 删除所有已完成的任务
+          updateQuery = { $pull: { tasks: { checked: true } } }; // delete all completed tasks
           break;
       }
 
