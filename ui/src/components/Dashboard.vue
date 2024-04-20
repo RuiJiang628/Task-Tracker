@@ -111,7 +111,11 @@
         <header class="task-header">
           <h2>{{ taskHeaderTitle }}</h2>
           <div>
-            <button class="delete-all-button" :disabled="!isLoggedIn">
+            <button
+              class="delete-all-button"
+              :disabled="!isLoggedIn || !enableDeleteAll"
+              @click="deleteAllTasks"
+            >
               Delete All
             </button>
           </div>
@@ -232,6 +236,8 @@ const canSaveTaskEdits = computed(() => {
   return selectedTask.value.title.trim().length > 0;
 });
 
+const enableDeleteAll = computed(() => tasks.value.length > 0);
+
 const filteredTasks = computed(() => {
   return tasks.value.filter((task) => {
     switch (filterStatus.value) {
@@ -327,6 +333,21 @@ function deleteTask() {
   socket.on("taskError", (error) => {
     console.error("Error deleting task:", error.message);
     alert(`Failed to delete task: ${error.message}`);
+  });
+}
+
+function deleteAllTasks() {
+  socket.emit("deleteAllTasks");
+
+  socket.on("allTasksDeleted", () => {
+    tasks.value = [];
+    console.log("All tasks have been successfully deleted.");
+    fetchTasks();
+  });
+
+  socket.on("taskError", (error) => {
+    console.error("Error deleting all tasks:", error.message);
+    alert(`Failed to delete all tasks: ${error.message}`);
   });
 }
 

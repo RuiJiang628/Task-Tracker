@@ -256,6 +256,28 @@ io.on("connection", (client) => {
     }
   })
 
+  client.on("deleteAllTasks", async () => {
+    try {
+      const netID = (client.request as any).session.passport.user.nickname;
+      const result = await db.collection("users").updateOne(
+        { netID: netID },
+        { $set: { tasks: [] } } // delete all tasks
+      );
+
+      if (result.modifiedCount === 0) {
+        throw new Error("No tasks were deleted or user not found.");
+      }
+
+      client.emit("allTasksDeleted");
+    } catch (error) {
+      console.error("Error deleting all tasks:", error);
+      client.emit("taskError", {
+        message: "Failed to delete all tasks",
+        error: error.message,
+      });
+    }
+  });
+
   client.on('fetchAllUsers', async () => {
     const user = (client.request as any).session?.passport?.user;
     if (!user) {
