@@ -256,12 +256,26 @@ io.on("connection", (client) => {
     }
   })
 
-  client.on("deleteAllTasks", async () => {
+  client.on("deleteAllTasks", async (taskData) => {
     try {
       const netID = (client.request as any).session.passport.user.nickname;
+      let updateQuery = {};
+
+      switch (taskData.status) {
+        case "All":
+          updateQuery = { $set: { tasks: [] } }; // 清空所有任务
+          break;
+        case "Active":
+          updateQuery = { $pull: { tasks: { checked: false } } }; // 删除所有未完成的任务
+          break;
+        case "Completed":
+          updateQuery = { $pull: { tasks: { checked: true } } }; // 删除所有已完成的任务
+          break;
+      }
+
       const result = await db.collection("users").updateOne(
         { netID: netID },
-        { $set: { tasks: [] } } // delete all tasks
+        updateQuery // delete all tasks
       );
 
       if (result.modifiedCount === 0) {

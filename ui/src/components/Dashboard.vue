@@ -337,17 +337,16 @@ function deleteTask() {
 }
 
 function deleteAllTasks() {
-  socket.emit("deleteAllTasks");
+  socket.emit("deleteAllTasks", { status: filterStatus.value });
 
   socket.on("allTasksDeleted", () => {
-    tasks.value = [];
-    console.log("All tasks have been successfully deleted.");
-    fetchTasks();
+    fetchTasks(); // 重新获取任务列表以更新视图
+    console.log("Appropriate tasks have been successfully deleted.");
   });
 
   socket.on("taskError", (error) => {
-    console.error("Error deleting all tasks:", error.message);
-    alert(`Failed to delete all tasks: ${error.message}`);
+    console.error("Error deleting tasks:", error.message);
+    alert(`Failed to delete tasks: ${error.message}`);
   });
 }
 
