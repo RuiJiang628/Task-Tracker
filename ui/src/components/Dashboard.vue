@@ -21,21 +21,19 @@
           <!-- Use the selectedTask for binding the inputs -->
           <input
             type="text"
-            placeholder="Add title"
-            v-model="selectedTask.title"
+            placeholder="Edit title"
+            v-model="editTaskData.title"
           />
           <textarea
             placeholder="Add description (optional)"
-            v-model="selectedTask.description"
+            v-model="editTaskData.description"
           ></textarea>
           <div class="modal-footer">
             <button class="delete-button" @click="deleteTask(selectedTask.id)">
               Delete
             </button>
             <div class="modal-actions">
-              <button class="cancel-button" @click="closeEditModal">
-                Cancel
-              </button>
+              <button class="cancel-button" @click="cancelEdit">Cancel</button>
               <button
                 class="save-button"
                 @click="saveTaskEdits"
@@ -129,7 +127,10 @@
             @click="selectTask(task)"
           >
             <!-- Custom Checkbox -->
-            <label class="custom-checkbox" @click="toggleTaskChecked(task)">
+            <label
+              class="custom-checkbox"
+              @click.stop="toggleTaskChecked(task)"
+            >
               <input type="checkbox" v-model="task.checked" />
               <span class="checkbox-style"></span>
             </label>
@@ -150,6 +151,7 @@ import axios from "axios";
 import { User, Task, addTask } from "../data";
 
 const selectedTask = ref<Task | null>(null);
+const editTaskData = ref<Task | null>(null);
 const showEditModal = ref(false);
 const showModal = ref(false);
 const newTaskTitle = ref("");
@@ -189,12 +191,18 @@ function updateDate() {
 }
 
 function selectTask(task: Task) {
-  selectedTask.value = task; // select the task
-  showEditModal.value = true; // show the edit task modal window
+  selectedTask.value = task;
+  editTaskData.value = { ...task };
+  showEditModal.value = true;
+}
+
+function cancelEdit() {
+  editTaskData.value = null;
+  showEditModal.value = false;
 }
 
 function closeEditModal() {
-  showEditModal.value = false; // close the edit task modal window
+  showEditModal.value = false;
 }
 
 let intervalId: any;
@@ -215,7 +223,6 @@ async function checkAuthentication() {
   }
 }
 
-// 计算属性
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
 
 const canSaveTaskEdits = computed(() => {
@@ -272,24 +279,27 @@ function toggleTaskChecked(task: Task) {
 }
 
 function saveTaskEdits() {
-  if (!selectedTask.value) {
-    console.error("No task selected to save.");
+  if (!editTaskData.value || !selectedTask.value) {
+    console.error("No task selected or data to save.");
     return;
   }
 
-  // Emit event to update task in the backend with the current state of selectedTask
   socket.emit("updateTask", {
     taskID: selectedTask.value.taskID,
-    title: selectedTask.value.title,
-    description: selectedTask.value.description,
-    checked: selectedTask.value.checked,
+    title: editTaskData.value.title,
+    description: editTaskData.value.description,
   });
+  console.log(
+    "Task update request sent:",
+    selectedTask.value.taskID,
+    editTaskData.value
+  );
 
-  // 监听后端响应
   socket.once("taskUpdated", (response) => {
     console.log("Task update success:", response);
-    fetchTasks(); // Re-fetch tasks to refresh the list
-    showEditModal.value = false; // 关闭模态窗口
+    showEditModal.value = false;
+    editTaskData.value = null;
+    fetchTasks();
   });
 
   socket.once("taskError", (error) => {
@@ -298,18 +308,27 @@ function saveTaskEdits() {
   });
 }
 
-// 删除任务的方法
-// function deleteTask(taskId) {
-//   socket.emit("deleteTask", taskId);
-//   socket.on("taskDeleted", () => {
-//     tasks.value = tasks.value.filter((task) => task.id !== taskId);
-//     alert("Task successfully deleted.");
-//   });
-//   socket.on("taskError", (error) => {
-//     console.error("Error deleting task:", error.message);
-//     alert(`Failed to delete task: ${error.message}`);
-//   });
-// }
+function deleteTask() {
+  if (!selectedTask.value) {
+    console.error("No task selected.");
+    return;
+  }
+
+  socket.emit("deleteTask", { taskID: selectedTask.value.taskID });
+
+  socket.on("taskDeleted", () => {
+    showEditModal.value = false;
+    tasks.value = tasks.value.filter(
+      (task) => task.taskID !== selectedTask.value.taskID
+    );
+    fetchTasks();
+  });
+
+  socket.on("taskError", (error) => {
+    console.error("Error deleting task:", error.message);
+    alert(`Failed to delete task: ${error.message}`);
+  });
+}
 
 // Fetch tasks from the server
 onMounted(() => {
@@ -335,11 +354,6 @@ function setupSocketListeners() {
   socket.on("taskError", (data) => {
     console.error(data.message);
   });
-
-  // socket.on("taskDeleted", (taskId) => {
-  //   tasks.value = tasks.value.filter((task) => task.id !== taskId);
-  //   alert("Task has been successfully deleted.");
-  // });
 
   // 请求任务数据
   fetchTasks();

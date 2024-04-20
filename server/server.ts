@@ -204,9 +204,10 @@ io.on("connection", (client) => {
     }
   });
 
+  // Update task event
   client.on("updateTask", async (taskData) => {
     try {
-      const { taskID, title, description, checked } = taskData;
+      const { taskID, title, description } = taskData;
       const netID = (client.request as any).session.passport.user.nickname;
 
       // Update the task in MongoDB
@@ -220,9 +221,9 @@ io.on("connection", (client) => {
         }
       );
 
-      if (updateResult.modifiedCount === 0) {
-        throw new Error("No task was updated or task not found.");
-      }
+      // if (updateResult.modifiedCount === 0) {
+      //   throw new Error("No task was updated or task not found.");
+      // }
 
       client.emit("taskUpdated", { message: "Task successfully updated." });
     } catch (error) {
@@ -233,27 +234,27 @@ io.on("connection", (client) => {
     }
   });
 
-  // Delete task event
-  // client.on("deleteTask", async ({ taskId }) => {
-  //   try {
-  //     const result = await db
-  //       .collection("users")
-  //       .updateOne(
-  //         { "tasks.taskID": taskId },
-  //         { $pull: { tasks: { taskID: taskId } } as any }
-  //       );
-  //     if (result.modifiedCount === 0) {
-  //       throw new Error("Task not found or user not authenticated");
-  //     }
-  //     client.emit("taskDeleted", { taskId: taskId, status: "success" });
-  //   } catch (error) {
-  //     console.error("Error deleting task:", error);
-  //     client.emit("taskError", {
-  //       message: "Failed to delete task",
-  //       error: error.message,
-  //     });
-  //   }
-  // });
+  client.on("deleteTask", async ({ taskID }) => {
+    try {
+      const netID = (client.request as any).session.passport.user.nickname;
+      const updateResult = await db
+        .collection<User>("users")
+        .updateOne(
+          { netID: netID, "tasks.taskID": taskID },
+          { $pull: { tasks: { taskID: taskID } } }
+        );
+      if (updateResult.modifiedCount === 0) {
+        throw new Error("Task not found or user not authenticated.");
+      }
+      client.emit("taskDeleted", { taskID: taskID, status: "success" });
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      client.emit("taskError", {
+        message: "Failed to delete task",
+        error: error.message,
+      });
+    }
+  })
 
   client.on('fetchAllUsers', async () => {
     const user = (client.request as any).session?.passport?.user;
