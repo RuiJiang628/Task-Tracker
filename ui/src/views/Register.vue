@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div class="page-background">
         <div class="login-container">
         <h1>Task Tracker</h1>
@@ -13,7 +13,7 @@
     </div>
 </template>
   
-<script>
+<script setup lang="ts">
   export default {
     data() {
       return {
@@ -108,4 +108,4 @@
         }
     }
     
-</style>
+</style> -->

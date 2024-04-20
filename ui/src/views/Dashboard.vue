@@ -20,11 +20,9 @@
 <script setup lang="ts">
 import { onMounted, ref, provide, computed } from "vue";
 import { User } from "../data";
-import { io } from "socket.io-client";
 
 import Dashboard from "./../components/Dashboard.vue";
 
-const socket = io(); // 使用你的Socket.IO服务器地址
 
 function logout() {
   (window.document.getElementById("logoutForm") as HTMLFormElement).submit();

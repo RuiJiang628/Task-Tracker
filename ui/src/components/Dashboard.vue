@@ -22,14 +22,16 @@
           <input
             type="text"
             placeholder="Edit title"
+            v-if="editTaskData"
             v-model="editTaskData.title"
           />
           <textarea
             placeholder="Add description (optional)"
+            v-if="editTaskData"
             v-model="editTaskData.description"
           ></textarea>
           <div class="modal-footer">
-            <button class="delete-button" @click="deleteTask(selectedTask.id)">
+            <button class="delete-button" @click="deleteTask()">
               Delete
             </button>
             <div class="modal-actions">
@@ -168,8 +170,9 @@ const newTask = computed(() => {
   };
 });
 const filterStatus = ref("All");
-const tasks = ref([]);
+const tasks = ref<Task[]>([]);
 const isLoggedIn = ref(false);
+const message = ref('');
 
 const socket = io();
 
@@ -238,7 +241,7 @@ const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
 
 // Enable save button for task edits
 const canSaveTaskEdits = computed(() => {
-  if (!selectedTask.value) {
+  if (!selectedTask.value || !editTaskData.value) {
     return false;
   }
   return editTaskData.value.title.trim().length > 0;
@@ -248,7 +251,7 @@ const canSaveTaskEdits = computed(() => {
 const enableDeleteAll = computed(() => tasks.value.length > 0);
 
 // Filter tasks based on status
-const filteredTasks = computed(() => {
+const filteredTasks = computed<Task[]>(() => {
   return tasks.value.filter((task) => {
     switch (filterStatus.value) {
       case "Active":
@@ -276,7 +279,7 @@ const taskHeaderTitle = computed(() => {
 // Add a new task
 function saveNewTask() {
   addTask(newTask.value, {
-    onSuccess: (task) => {
+    onSuccess: () => {
       newTaskTitle.value = "";
       newTaskDescription.value = "";
       showModal.value = false;
@@ -340,7 +343,7 @@ function deleteTask() {
   socket.on("taskDeleted", () => {
     showEditModal.value = false;
     tasks.value = tasks.value.filter(
-      (task) => task.taskID !== selectedTask.value.taskID
+      (task) => task.taskID !== (selectedTask.value ? selectedTask.value.taskID : null)
     );
     fetchTasks();
   });

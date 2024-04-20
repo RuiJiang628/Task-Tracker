@@ -86,8 +86,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, watch, nextTick } from "vue";
-import { User, Errors } from "../data";
+import { onMounted, ref, computed, watch } from "vue";
+import { User } from "../data";
 import { io } from "socket.io-client";
 
 const socket = io();
