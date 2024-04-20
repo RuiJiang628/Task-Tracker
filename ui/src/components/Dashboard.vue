@@ -176,6 +176,7 @@ const socket = io();
 const user = ref({} as User);
 provide("user", user);
 
+// Message to display
 const currentDate = ref(
   new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -185,6 +186,7 @@ const currentDate = ref(
   })
 );
 
+// Update the date
 function updateDate() {
   currentDate.value = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -194,23 +196,27 @@ function updateDate() {
   });
 }
 
+// Show the edit modal
 function selectTask(task: Task) {
   selectedTask.value = task;
   editTaskData.value = { ...task };
   showEditModal.value = true;
 }
 
+// Cancel the edit operation
 function cancelEdit() {
   editTaskData.value = null;
   showEditModal.value = false;
 }
 
+// Close the edit modal
 function closeEditModal() {
   showEditModal.value = false;
 }
 
 let intervalId: any;
 
+// Check if the user is authenticated
 async function checkAuthentication() {
   try {
     const response = await axios.get("/api/check-auth", {
@@ -227,8 +233,10 @@ async function checkAuthentication() {
   }
 }
 
+// Enable save button for new tasks
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
 
+// Enable save button for task edits
 const canSaveTaskEdits = computed(() => {
   if (!selectedTask.value) {
     return false;
@@ -236,8 +244,10 @@ const canSaveTaskEdits = computed(() => {
   return selectedTask.value.title.trim().length > 0;
 });
 
+// Enable delete all button
 const enableDeleteAll = computed(() => tasks.value.length > 0);
 
+// Filter tasks based on status
 const filteredTasks = computed(() => {
   return tasks.value.filter((task) => {
     switch (filterStatus.value) {
@@ -251,6 +261,7 @@ const filteredTasks = computed(() => {
   });
 });
 
+// Task Header Title
 const taskHeaderTitle = computed(() => {
   switch (filterStatus.value) {
     case "Active":
@@ -262,6 +273,7 @@ const taskHeaderTitle = computed(() => {
   }
 });
 
+// Add a new task
 function saveNewTask() {
   addTask(newTask.value, {
     onSuccess: (task) => {
@@ -276,6 +288,7 @@ function saveNewTask() {
   });
 }
 
+// Toggle task checked status
 function toggleTaskChecked(task: Task) {
   task.checked = !task.checked;
   socket.emit("updateTaskStatus", {
@@ -284,6 +297,7 @@ function toggleTaskChecked(task: Task) {
   });
 }
 
+// Save task edits
 function saveTaskEdits() {
   if (!editTaskData.value || !selectedTask.value) {
     console.error("No task selected or data to save.");
@@ -314,6 +328,7 @@ function saveTaskEdits() {
   });
 }
 
+// Delete a task
 function deleteTask() {
   if (!selectedTask.value) {
     console.error("No task selected.");
@@ -336,11 +351,12 @@ function deleteTask() {
   });
 }
 
+// Delete all tasks
 function deleteAllTasks() {
   socket.emit("deleteAllTasks", { status: filterStatus.value });
 
   socket.on("allTasksDeleted", () => {
-    fetchTasks(); // 重新获取任务列表以更新视图
+    fetchTasks();
     console.log("Appropriate tasks have been successfully deleted.");
   });
 
@@ -358,14 +374,17 @@ onMounted(() => {
   intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
 });
 
+// Clear the interval
 onUnmounted(() => {
   clearInterval(intervalId);
 });
 
+// Fetch tasks from the server
 function fetchTasks() {
   socket.emit("getTasks");
 }
 
+// Setup socket listeners
 function setupSocketListeners() {
   socket.on("tasksFetched", (fetchedTasks) => {
     tasks.value = fetchedTasks;
