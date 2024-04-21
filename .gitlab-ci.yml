@@ -11,16 +11,17 @@ build:
     - npm install && npm run build
     - cd ../ui
     - npm install && npm run build
-    - cd ..
 
 deploy:
   stage: deploy
+  rules:
+   - when: manual
   script:
     - echo "Deploying application..."
     - cd server
-    - docker build -t cs590-group-5-server .
+    - docker build -t cs590-final-group-5-server .
     - cd ../ui
-    - docker build -t cs590-group-5-ui
+    - docker build -t cs590-final-group-5-ui
     - cd ..
     - kubectl delete -f k8s/ --ignore-not-found=true
     - kubectl apply -f k8s/
