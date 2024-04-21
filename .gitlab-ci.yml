@@ -1,37 +1,62 @@
 stages:
-  - build
-  - deploy
+  - build_server
+  - build_ui
+  - delete_clusters
+  - deploy_clusters
+  - E2E_testing
   - test
 
-build:
-  stage: build
-  rules:
-    - when: manual
-  script:
-    - echo "Building application..."
-    - cd server
-    - npm install && npm run build
-    - cd ../ui
-    - npm install && npm run build
+variables:
+  CI_RUNNER_EXECUTOR: shell
 
-deploy:
-  stage: deploy
-  rules:
-   - when: manual
+build_server:
+  stage: build_server
   script:
-    - echo "Deploying application..."
     - cd server
     - docker build -t cs590-final-group-5-server .
-    - cd ../ui
-    - docker build -t cs590-final-group-5-ui
     - cd ..
-    - kubectl delete -f k8s/ --ignore-not-found=true
-    - kubectl apply -f k8s/
 
-e2e-test-job:
-  stage: test
-  rules:
-    - when: manual
+build_ui:
+  stage: build_ui
   script:
-    - echo "Running E2E tests..."
-    - npx playwright test --project=chromium
+    - cd ui
+    - docker build -t cs590-final-group-5-ui .
+    - cd ..
+
+delete_clusters:
+  stage: delete_clusters
+  script:
+    - kubectl delete deployment db server ui --ignore-not-found
+    - kubectl delete service db server ui --ignore-not-found
+
+deploy:
+  stage: deploy_clusters
+  script:
+    - kubectl create -f k8s/
+
+testing: 
+  stage: E2E_testing
+  script: 
+    - sleep 10
+    - kubectl port-forward service/db 27017:27017 &
+    - MONGO_PORT_FORWARD_PID=$!
+    - curl http://localhost:31000
+
+    - cd server
+    - npm i
+    - npm run setup
+    - cd ..
+
+    - npx playwright test --project=chromium --retries=0
+
+    - kill $MONGO_PORT_FORWARD_PID
+
+
+# testing2:
+#   stage: test
+#   script:
+#     # - cd server
+#     # - npm run setup
+#     # - cd ..
+#     - curl http://localhost:31000
+#     - npx playwright test --project=webkit
