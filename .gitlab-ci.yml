@@ -25,14 +25,31 @@ build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - echo "Building application..."
+    - cd server
+    - docker build -t cs590-final-group-5-server .
+    - cd ../ui
+    - docker build -t cs590-final-group-5-ui .
+    - cd ..
+
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy
   script:
     - echo "Deploying application..."
+    - kubectl delete -f k8s/ --ignore-not-found=true
+    - kubectl create -f k8s/
+    - kubectl apply -f k8s/db-deployment.yaml
+    - kubectl apply -f k8s/db-service.yaml
+    - kubectl apply -f k8s/server-deployment.yaml
+    - kubectl apply -f k8s/server-service.yaml
+    - kubectl apply -f k8s/ui-deployment.yaml
+    - kubectl apply -f k8s/ui-service.yaml
+    - cd ..
 
 e2e-test-job:   # This job runs in the test stage.
   stage: test 
+  rules:
+    - when: manual
   script:
     - echo "Running E2E tests..."
     - npx playwright test --project=chromium
