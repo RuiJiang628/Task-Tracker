@@ -16,29 +16,29 @@ async function main() {
             { unique: true }
           )
 
-          const insertResult = await db.collection("users").insertMany([
-            {
-                "netID": "test123",
-                "userName": "Test User 1",
-                "email": "test123@example.com"
-            },
-            {
-                "netID": "test124",
-                "userName": "Test User 2",
-                "email": "test124@example.com"
-            },
-            {
-                "netID": "test125",
-                "userName": "Test User 3",
-                "email": "test125@example.com"
-            },
-            {
-                "netID": "test126",
-                "userName": "Test User 4",
-                "email": "test126@example.com"
-            }
-        ])
-        console.log('Inserted document:', insertResult);
+        //   const insertResult = await db.collection("users").insertMany([
+        //     {
+        //         "netID": "test123",
+        //         "userName": "Test User 1",
+        //         "email": "test123@example.com"
+        //     },
+        //     {
+        //         "netID": "test124",
+        //         "userName": "Test User 2",
+        //         "email": "test124@example.com"
+        //     },
+        //     {
+        //         "netID": "test125",
+        //         "userName": "Test User 3",
+        //         "email": "test125@example.com"
+        //     },
+        //     {
+        //         "netID": "test126",
+        //         "userName": "Test User 4",
+        //         "email": "test126@example.com"
+        //     }
+        // ])
+        // console.log('Inserted document:', insertResult);
     } catch (error) {
         console.error('An error occurred:', error);
     } finally {
