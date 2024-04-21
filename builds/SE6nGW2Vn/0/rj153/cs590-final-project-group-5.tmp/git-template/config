@@ -1,8 +1,0 @@
-[init]
-	defaultBranch = none
-[fetch]
-	recurseSubmodules = false
-[transfer]
-	bundleURI = true
-[http "https://coursework.cs.duke.edu"]
-	sslCAInfo = /Users/rachel/Desktop/CS590/cs590-final-project-group-5/builds/SE6nGW2Vn/0/rj153/cs590-final-project-group-5.tmp/CI_SERVER_TLS_CA_FILE
