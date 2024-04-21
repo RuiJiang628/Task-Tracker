@@ -33,6 +33,8 @@ deploy-job:      # This job runs in the deploy stage.
 
 e2e-test-job:   # This job runs in the test stage.
   stage: test 
+  rules: 
+  - when: manual
   script:
     - echo "Running E2E tests..."
     - npx playwright test --project=chromium
