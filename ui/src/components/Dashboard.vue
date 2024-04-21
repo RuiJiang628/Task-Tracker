@@ -167,6 +167,7 @@ const newTask = computed(() => {
     title: newTaskTitle.value,
     description: newTaskDescription.value,
     checked: false,
+    version: 0
   };
 });
 const filterStatus = ref("All");
@@ -300,6 +301,11 @@ function toggleTaskChecked(task: Task) {
   });
 }
 
+socket.on("taskUpdated", (response) => {
+  console.log("Task status update success:", response);
+  fetchTasks();
+});
+
 // Save task edits
 function saveTaskEdits() {
   if (!editTaskData.value || !selectedTask.value) {
@@ -311,6 +317,7 @@ function saveTaskEdits() {
     taskID: selectedTask.value.taskID,
     title: editTaskData.value.title,
     description: editTaskData.value.description,
+    version: selectedTask.value.version
   });
   console.log(
     "Task update request sent:",
@@ -322,6 +329,9 @@ function saveTaskEdits() {
     console.log("Task update success:", response);
     showEditModal.value = false;
     editTaskData.value = null;
+    if (selectedTask.value) {
+      selectedTask.value.version++;
+    }
     fetchTasks();
   });
 
@@ -339,20 +349,20 @@ function deleteTask() {
   }
 
   socket.emit("deleteTask", { taskID: selectedTask.value.taskID });
-
-  socket.on("taskDeleted", () => {
-    showEditModal.value = false;
-    tasks.value = tasks.value.filter(
-      (task) => task.taskID !== (selectedTask.value ? selectedTask.value.taskID : null)
-    );
-    fetchTasks();
-  });
-
-  socket.on("taskError", (error) => {
-    console.error("Error deleting task:", error.message);
-    alert(`Failed to delete task: ${error.message}`);
-  });
 }
+
+socket.on("taskDeleted", () => {
+  showEditModal.value = false;
+  tasks.value = tasks.value.filter(
+    (task) => task.taskID !== (selectedTask.value ? selectedTask.value.taskID : null)
+  );
+  fetchTasks();
+});
+
+// socket.on("taskError", (error) => {
+//   console.error("Error deleting task:", error.message);
+//   alert(`Failed to delete task: ${error.message}`);
+// });
 
 // Delete all tasks
 function deleteAllTasks() {
@@ -375,6 +385,10 @@ onMounted(() => {
   setupSocketListeners();
   checkAuthentication();
   intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
+});
+
+socket.on("taskAdded", (task) => {
+  fetchTasks();
 });
 
 // Clear the interval

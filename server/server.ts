@@ -44,7 +44,7 @@ const logger = pino({
   },
 });
 app.use(expressPinoLogger({ logger }));
-// app.use(cors({ origin: "http://127.0.0.1:8080", credentials: true }));
+app.use(cors({ origin: "http://127.0.0.1:8080", credentials: true }));
 
 const sessionMiddleware = session({
   secret: "a just so-so secret",
@@ -198,8 +198,7 @@ io.on("connection", (client) => {
       if (updateResult.modifiedCount === 0) {
         throw new Error("No task was updated.");
       }
-
-      client.emit("taskUpdated", { taskID, status: "success" });
+      io.to(netID).emit("taskUpdated", { taskID, status: "success" });
     } catch (error) {
       console.error("Error updating task status:", error);
       client.emit("taskError", {
@@ -212,24 +211,26 @@ io.on("connection", (client) => {
   // Update task event
   client.on("updateTask", async (taskData) => {
     try {
-      const { taskID, title, description } = taskData;
+      const { taskID, title, description, version } = taskData;
       const netID = (client.request as any).session.passport.user.nickname;
 
       // Update the task in MongoDB
-      const updateResult = await db.collection("users").updateOne(
-        { netID: netID, "tasks.taskID": taskID },
-        {
-          $set: {
-            "tasks.$.title": title,
-            "tasks.$.description": description,
-          },
-        }
-      );
-
-      // if (updateResult.modifiedCount === 0) {
-      //   throw new Error("No task was updated or task not found.");
-      // }
-
+      const filter = {
+        netID: netID, 
+        tasks: { $elemMatch: { taskID: taskID, version: version } }
+      };
+      const update = {
+        $set: {
+          "tasks.$.title": title,
+          "tasks.$.description": description
+        },
+        $inc: { "tasks.$.version": 1 }  // Increment the task's version number
+      };
+      const updateResult = await db.collection("users").updateOne(filter, update);
+      if (updateResult.matchedCount === 0) {
+        // 如果没有文档匹配，可能是因为没有找到具有相应taskID和version的任务
+        throw new Error("No task matches the provided taskID and version, update failed.");
+      }
       client.emit("taskUpdated", { message: "Task successfully updated." });
     } catch (error) {
       client.emit("taskError", {
@@ -251,7 +252,7 @@ io.on("connection", (client) => {
       if (updateResult.modifiedCount === 0) {
         throw new Error("Task not found or user not authenticated.");
       }
-      client.emit("taskDeleted", { taskID: taskID, status: "success" });
+      io.to(netID).emit("taskDeleted", { taskID: taskID, status: "success" });
     } catch (error) {
       console.error("Error deleting task:", error);
       client.emit("taskError", {

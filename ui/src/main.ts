@@ -28,7 +28,20 @@ const routes = [
       }
     }
   },
-  { path: "/", component: Base },
+  { path: "/", component: Base ,
+    beforeEnter: async (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+      try {
+        const response = await fetch('/api/user', { credentials: 'include' });
+        if (response.ok) {
+          next('/dashboard'); // 如果用户已登录，重定向到/dashboard
+        } else {
+          next(); // 如果未登录，正常渲染 Base 组件
+        }
+      } catch (error) {
+        next(); // 在发生错误时正常渲染 Base 组件
+      }
+    } 
+  },
   // { path: "/register", component: Register },
   { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true },
     beforeEnter: async (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {

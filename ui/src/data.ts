@@ -3,6 +3,7 @@ export interface Task {
   title: string;
   description: string;
   checked: boolean;
+  version: number;
 }
 
 export interface User {
@@ -54,18 +55,3 @@ export function addTask(
     callbacks.onError(data.message);
   });
 }
-
-// export function deleteTask(
-//   taskId: number,
-//   callbacks: { onSuccess: () => void; onError: (errorMessage: string) => void }
-// ) {
-//   socket.emit("deleteTask", { taskId });
-
-//   socket.on("taskDeleted", (response) => {
-//     callbacks.onSuccess();
-//   });
-
-//   socket.on("taskError", (error) => {
-//     callbacks.onError(error.message);
-//   });
-// }
