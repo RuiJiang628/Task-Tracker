@@ -5,6 +5,8 @@ stages:
 
 build:
   stage: build
+  rules:
+    - when: manual
   script:
     - echo "Building application..."
     - cd server
