@@ -83,6 +83,13 @@ io.use(wrap(sessionMiddleware));
 // Socket.IO events
 io.on("connection", (client) => {
   const user = (client.request as any).session?.passport?.user;
+  const netID = user?.nickname;
+  if (netID) {
+    client.join(netID); // 将用户加入以netID为名称的房间
+  } else {
+    client.emit("unauthorized", { message: "User is not authenticated" });
+    client.disconnect();
+  }
   logger.info("new socket connection for user " + JSON.stringify(user));
   if (!user) {
     client.disconnect();
@@ -139,7 +146,7 @@ io.on("connection", (client) => {
         client.emit("taskError", { message: "Task could not be added" });
         return;
       }
-      client.emit("taskAdded", {
+      io.to(netID).emit("taskAdded", {
         message: "Task added successfully",
         task: newTask,
       });
