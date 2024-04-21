@@ -387,7 +387,7 @@ onMounted(() => {
   intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
 });
 
-socket.on("taskAdded", (task) => {
+socket.on("taskAdded", () => {
   fetchTasks();
 });
 
