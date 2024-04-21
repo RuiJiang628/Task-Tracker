@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 
-const url = 'mongodb://127.0.0.1:27017';
+const url = process.env.MONGO_URL || "mongodb://localhost:27017";
+
 const client = new MongoClient(url);
 
 async function main() {

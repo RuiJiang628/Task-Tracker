@@ -13,12 +13,12 @@ import { Strategy as CustomStrategy } from "passport-custom";
 import { Server } from "socket.io";
 import { gitlab } from "./secrets";
 import { User, Task } from "./data";
-import dotenv from 'dotenv';
-const result = dotenv.config({ path: '../.env' });
+// import dotenv from 'dotenv';
+// const result = dotenv.config({ path: '../.env' });
 
 const HOST = process.env.HOST || "127.0.0.1";
 const DISABLE_SECURITY = process.env.DISABLE_SECURITY;
-const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
 const client = new MongoClient(mongoUrl);
 const port = parseInt(process.env.PORT) || 8193;
 let db: Db;
@@ -44,7 +44,7 @@ const logger = pino({
   },
 });
 app.use(expressPinoLogger({ logger }));
-app.use(cors({ origin: "http://127.0.0.1:8080", credentials: true }));
+app.use(cors({ origin: "http://127.0.0.1:31000/", credentials: true }));
 
 const sessionMiddleware = session({
   secret: "a just so-so secret",
@@ -53,7 +53,7 @@ const sessionMiddleware = session({
   cookie: { secure: false },
 
   store: MongoStore.create({
-    mongoUrl: "mongodb://127.0.0.1:27017",
+    mongoUrl: mongoUrl,
     ttl: 14 * 24 * 60 * 60, // 14 days
   }),
 });
@@ -437,7 +437,7 @@ client.connect().then(async () => {
     const params = {
       scope: "openid profile email",
       nonce: generators.nonce(),
-      redirect_uri: `http://${HOST}:8080/api/login-callback`,
+      redirect_uri: `http://127.0.0.1:31000/api/login-callback`,
       state: generators.state(),
       // this forces a fresh login screen every time
       // prompt: "login",

@@ -20,6 +20,6 @@ spec:
         ports:
         - containerPort: 27017
           name: mongo
-        env:
-        - name: DISABLE_SECURITY
-          value: "foo-bar-baz"
+        # env:
+        # - name: DISABLE_SECURITY
+        #   value: "foo-bar-baz"
