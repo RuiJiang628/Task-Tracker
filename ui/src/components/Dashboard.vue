@@ -154,6 +154,7 @@ import { ref, onMounted, computed, provide, onUnmounted } from "vue";
 import io from "socket.io-client";
 // import axios from "axios";
 import { User, Task, addTask } from "../data";
+import axios from "axios";
 
 const selectedTask = ref<Task | null>(null);
 const editTaskData = ref<Task | null>(null);
@@ -220,21 +221,21 @@ function closeEditModal() {
 let intervalId: any;
 
 // Check if the user is authenticated
-// async function checkAuthentication() {
-//   try {
-//     const response = await axios.get("/api/check-auth", {
-//       withCredentials: true,
-//     });
-//     if (response.status === 200) {
-//       isLoggedIn.value = true;
-//     } else {
-//       isLoggedIn.value = false;
-//     }
-//   } catch (error) {
-//     isLoggedIn.value = false;
-//     console.error("Authentication check failed:", error);
-//   }
-// }
+async function checkAuthentication() {
+  try {
+    const response = await axios.get("/api/check-auth", {
+      withCredentials: true,
+    });
+    if (response.status === 200) {
+      isLoggedIn.value = true;
+    } else {
+      isLoggedIn.value = false;
+    }
+  } catch (error) {
+    isLoggedIn.value = false;
+    console.error("Authentication check failed:", error);
+  }
+}
 
 // Enable save button for new tasks
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
@@ -372,17 +373,17 @@ function deleteAllTasks() {
     console.log("Appropriate tasks have been successfully deleted.");
   });
 
-  socket.on("taskError", (error) => {
-    console.error("Error deleting tasks:", error.message);
-    alert(`Failed to delete tasks: ${error.message}`);
-  });
+  // socket.on("taskError", (error) => {
+  //   console.error("Error deleting tasks:", error.message);
+  //   alert(`Failed to delete tasks: ${error.message}`);
+  // });
 }
 
 // Fetch tasks from the server
 onMounted(() => {
   console.log("Dashboard component mounted");
   setupSocketListeners();
-  // checkAuthentication();
+  checkAuthentication();
   intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
 });
 
