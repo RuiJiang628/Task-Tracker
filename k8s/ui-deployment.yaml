@@ -21,6 +21,3 @@ spec:
         ports:
         - containerPort: 8080
           name: ui
-        # env:
-        # - name: DISABLE_SECURITY
-        #   value: "foo-bar-baz"

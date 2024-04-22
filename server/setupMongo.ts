@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const url = process.env.MONGO_URL || "mongodb://localhost:27017";
+const url = "mongodb://127.0.0.1:27017";
 
 const client = new MongoClient(url);
 
@@ -11,7 +11,7 @@ async function main() {
 
         const db = client.db("task_tracker");
 
-        db.collection("users").createIndex(
+        await db.collection("users").createIndex(
             { netID: 1 }, 
             { unique: true }
           )

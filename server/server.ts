@@ -18,7 +18,7 @@ import { User, Task } from "./data";
 
 const HOST = process.env.HOST || "127.0.0.1";
 const DISABLE_SECURITY = process.env.DISABLE_SECURITY;
-const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
+const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
 const client = new MongoClient(mongoUrl);
 const port = parseInt(process.env.PORT) || 8193;
 let db: Db;
@@ -437,7 +437,7 @@ client.connect().then(async () => {
     const params = {
       scope: "openid profile email",
       nonce: generators.nonce(),
-      redirect_uri: `http://127.0.0.1:31000/api/login-callback`,
+      redirect_uri: `http://${HOST}:8080/api/login-callback`,
       state: generators.state(),
       // this forces a fresh login screen every time
       // prompt: "login",

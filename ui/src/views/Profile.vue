@@ -115,9 +115,8 @@ provide("user", user);
 const socket = io();
 
 onMounted(async () => {
-  const userData = await (await fetch("/api/user")).json();
-  user.value = userData;
-  originalUser.value = JSON.parse(JSON.stringify(userData));
+  user.value = await (await fetch("/api/user")).json();
+  originalUser.value = JSON.parse(JSON.stringify(user.value));
 
   socket.on("profileSaved", (updatedUser) => {
     // 成功保存后更新本地存储的用户信息和版本号
