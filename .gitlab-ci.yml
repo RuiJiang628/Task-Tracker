@@ -36,7 +36,7 @@ setup-and-test:
     - PORT_FORWARD_PID=$!
     - sleep 10 # Give enough time for the port-forward to establish
     - cd server
-    - /opt/homebrew/opt/node@18/bin/npm install
+    - /opt/homebrew/bin/npm install
     - npm run setup 
     - cd ..
     - npm install 
