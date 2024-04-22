@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import bodyParser from "body-parser";
 import pino from "pino";
@@ -18,9 +18,10 @@ import { User, Task } from "./data";
 
 const HOST = process.env.HOST || "127.0.0.1";
 const DISABLE_SECURITY = process.env.DISABLE_SECURITY;
-const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 const client = new MongoClient(mongoUrl);
 const port = parseInt(process.env.PORT) || 8193;
+// const port = 8193;
 let db: Db;
 
 const passportStrategies = [
@@ -100,20 +101,20 @@ io.on("connection", (client) => {
     console.log("saveProfile", profileData);
     const { _id, version, ...updateData } = profileData;
 
-    const result = await db.collection("users").updateOne(
-      { _id: new ObjectId(_id), version: version },
-      { $set: updateData, $inc: { version: 1 } }
-    );
-
-    if (result.modifiedCount === 0) {
-        console.error("Error saving profile: No user found with the given ID or version mismatch.");
-        client.emit("saveError", { status: "error", message: "Update failed due to version mismatch or user not found." });
-        return;
-    }
-
-    // 获取并发送更新后的用户数据
-    const updatedUser = await db.collection("users").findOne({ _id: new ObjectId(_id) });
-    client.emit("profileSaved", updatedUser);
+    try {
+      const result = await db.collection("users").updateOne(
+        { _id: new ObjectId(_id), version: version },
+        { $set: updateData, $inc: { version: 1 } }
+      );
+      if (result.modifiedCount === 0) {
+        throw new Error("No user found with the given ID or version mismatch.");
+      }
+      const updatedUser = await db.collection("users").findOne({ _id: new ObjectId(_id) });
+      client.emit("profileSaved", updatedUser);
+    } catch (error) {
+      console.error("Error saving profile:", error.message);
+      client.emit("saveError", { status: "error", message: error.message });
+    }    
   });
 
   // Add task event
@@ -338,25 +339,25 @@ io.on("connection", (client) => {
   });
 })
 
-app.get("/api/check-auth", (req, res) => {
-  // Passport adds the isAuthenticated method to the request object
-  if (req.isAuthenticated()) {
-    // If the user is authenticated, return a successful response
-    res.status(200).json({ message: "User is authenticated" });
-  } else {
-    // If the user is not authenticated, return an unauthorized status
-    res.status(401).json({ message: "User is not authenticated" });
-  }
-});
+// app.get("/api/check-auth", (req, res) => {
+//   // Passport adds the isAuthenticated method to the request object
+//   if (req.isAuthenticated()) {
+//     // If the user is authenticated, return a successful response
+//     res.status(200).json({ message: "User is authenticated" });
+//   } else {
+//     // If the user is not authenticated, return an unauthorized status
+//     res.status(401).json({ message: "User is not authenticated" });
+//   }
+// });
 
 app.get(
   "/api/login",
-  passport.authenticate(passportStrategies, { failureRedirect: "/api/login" }),
-  (req, res) => res.redirect("/")
+  passport.authenticate(passportStrategies, { failureRedirect: "/api/login"}),
+  (req, res) => res.redirect("/dashboard")
 );
 
 app.get(
-  "/api/login-callback",
+  "/api/login-callback", 
   passport.authenticate(passportStrategies, { failureRedirect: "/api/login" }),
   (req, res) => {
     // 检查用户的角色并决定重定向的URL
@@ -388,7 +389,7 @@ app.get("/api/user", async (req, res) => {
   }
 });
 
-app.get("/api/admin", async (req, res) => {
+app.get("/api/admin", checkAuthenticated, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Admin is not authenticated" });
   }
@@ -417,6 +418,14 @@ app.post("/api/logout", (req, res, next) => {
   });
 });
 
+function checkAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (!req.isAuthenticated()) {
+    res.sendStatus(401)
+    return
+  }
+  next()
+}
+
 // Connect to MongoDB and start the server
 client.connect().then(async () => {
   logger.info("connected successfully to MongoDB");
@@ -437,7 +446,7 @@ client.connect().then(async () => {
     const params = {
       scope: "openid profile email",
       nonce: generators.nonce(),
-      redirect_uri: `http://${HOST}:8080/api/login-callback`,
+      redirect_uri: `http://127.0.0.1:31000/api/login-callback`,
       state: generators.state(),
       // this forces a fresh login screen every time
       // prompt: "login",

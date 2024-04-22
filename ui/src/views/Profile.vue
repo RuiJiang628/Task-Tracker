@@ -114,20 +114,35 @@ provide("errors", errors);
 provide("user", user);
 const socket = io();
 
+socket.on('connect', () => {
+  console.log('Connected to the server.');
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Connection failed:', error);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Disconnected:', reason);
+});
+
+
 onMounted(async () => {
+  console.log("Fetching user data...");
   user.value = await (await fetch("/api/user")).json();
   originalUser.value = JSON.parse(JSON.stringify(user.value));
+});
 
-  socket.on("profileSaved", (updatedUser) => {
+socket.on("profileSaved", (updatedUser) => {    
+    console.log("Profile saved:", updatedUser);
     // 成功保存后更新本地存储的用户信息和版本号
     user.value = updatedUser;
     originalUser.value = JSON.parse(JSON.stringify(updatedUser)); // 更新原始用户数据
-  });
-
+  });  
+  
   socket.on("saveError", (error) => {
     console.error("Profile save failed:", error);
     alert("Failed to save profile!");
-  });
 });
 
 const maxDate = ref(new Date().toISOString().substr(0, 10)); // 获取当前日期并转换为 YYYY-MM-DD 格式
