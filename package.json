@@ -1,9 +1,23 @@
 {
+  "name": "cs590-final-group-5",
+  "version": "1.0.0",
+  "description": "**NOTE**: Kubernetes does *not* build Docker images for you. Before deploying for the first time, or if you make any changes to your code, you *must* (re-)run the commands below to regenerate the images, and then re-deploy to Kubernetes.",
+  "main": "index.js",
   "dependencies": {
     "socket.io-client": "^4.7.5"
   },
   "scripts": {
     "start": "node hacking-attempt.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "optionalDependencies": {
+    "fsevents": "^2.3.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.43.1",
+    "@types/node": "^20.12.7"
   },
   "type": "module"
 }
