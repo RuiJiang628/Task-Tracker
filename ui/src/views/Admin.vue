@@ -155,10 +155,16 @@ socket.on('updateError', (error) => {
 });
 
 socket.on('usersFetched', (fetchedUsers) => {
+  console.log('Fetched users:', fetchedUsers);
   users.value = fetchedUsers;
 });
 
+socket.on('userConnected', (user) => {
+  console.log('User connected:', user);
+});
+
 onMounted(() => {
+  console.log('Fetching all users...');
   socket.emit('fetchAllUsers');
 });
 

@@ -1,13 +1,17 @@
-const { io } = require('socket.io-client');
+import { io } from 'socket.io-client'
 
-// The server URL should include the actual host and port the server is running on
-const SERVER_URL = 'http://localhost:8193';
+const URL = process.env.URL
+if (!URL) {
+	console.error("missing URL environment variable")
+	process.exit(1)
+}
 
-const socket = io(SERVER_URL, { transports: ['websocket'] });
+const socket = io(URL, { transports: ['websocket']});
 
 socket.on('connect', () => {
-    console.log('Connected to the server.');
+    console.log('Connected to the server at ', URL);
     // Attempt to fetch tasks without authentication
+    console.log('Attempting to fetch tasks without authentication');
     socket.emit('getTasks');
 });
 

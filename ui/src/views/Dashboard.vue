@@ -37,6 +37,7 @@ provide("user", user);
 
 onMounted(async () => {
   user.value = await (await fetch("/api/user")).json();
+  console.log(user.value);
 });
 
 const today = ref(

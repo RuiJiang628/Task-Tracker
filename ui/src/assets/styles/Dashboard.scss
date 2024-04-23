@@ -409,6 +409,7 @@ a:hover {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  font-family: "Lexend";
   overflow-y: auto;
 }
 
@@ -418,6 +419,7 @@ a:hover {
   background: white;
   padding: 1.25rem;
   border: none;
+  font-family: "Lexend";
   border-radius: 10px;
   @media (min-width: 600px) {
     width: 50vw;

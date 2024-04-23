@@ -114,7 +114,7 @@
           <div>
             <button
               class="delete-all-button"
-              :disabled="!isLoggedIn || !enableDeleteAll"
+              :disabled="!enableDeleteAll"
               @click="deleteAllTasks"
             >
               Delete All
@@ -154,7 +154,7 @@ import { ref, onMounted, computed, provide, onUnmounted } from "vue";
 import io from "socket.io-client";
 // import axios from "axios";
 import { User, Task, addTask } from "../data";
-import axios from "axios";
+// import axios from "axios";
 
 const selectedTask = ref<Task | null>(null);
 const editTaskData = ref<Task | null>(null);
@@ -172,7 +172,6 @@ const newTask = computed(() => {
 });
 const filterStatus = ref("All");
 const tasks = ref<Task[]>([]);
-const isLoggedIn = ref(false);
 const message = ref('');
 
 const socket = io();
@@ -220,23 +219,6 @@ function closeEditModal() {
 
 let intervalId: any;
 
-// Check if the user is authenticated
-async function checkAuthentication() {
-  try {
-    const response = await axios.get("/api/check-auth", {
-      withCredentials: true,
-    });
-    if (response.status === 200) {
-      isLoggedIn.value = true;
-    } else {
-      isLoggedIn.value = false;
-    }
-  } catch (error) {
-    isLoggedIn.value = false;
-    console.error("Authentication check failed:", error);
-  }
-}
-
 // Enable save button for new tasks
 const canSaveNewTask = computed(() => newTaskTitle.value.trim().length > 0);
 
@@ -250,6 +232,7 @@ const canSaveTaskEdits = computed(() => {
 
 // Enable delete all button
 const enableDeleteAll = computed(() => tasks.value.length > 0);
+console.log("enableDeleteAll", enableDeleteAll);
 
 // Filter tasks based on status
 const filteredTasks = computed<Task[]>(() => {
@@ -383,7 +366,7 @@ function deleteAllTasks() {
 onMounted(() => {
   console.log("Dashboard component mounted");
   setupSocketListeners();
-  checkAuthentication();
+  // checkAuthentication();
   intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
 });
 

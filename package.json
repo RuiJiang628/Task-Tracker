@@ -1,19 +1,9 @@
 {
-  "name": "cs590-final-project-group-5",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@playwright/test": "^1.43.1",
-    "@types/node": "^20.12.7"
-  },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "playwright": "^1.43.1",
     "socket.io-client": "^4.7.5"
-  }
+  },
+  "scripts": {
+    "start": "node hacking-attempt.js"
+  },
+  "type": "module"
 }

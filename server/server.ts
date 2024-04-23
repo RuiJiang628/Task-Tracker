@@ -96,6 +96,7 @@ io.on("connection", (client) => {
     client.disconnect();
     return;
   }
+  io.emit("userConnected", user);
 
   client.on("saveProfile", async (profileData) => {
     console.log("saveProfile", profileData);
@@ -308,7 +309,7 @@ io.on("connection", (client) => {
     }
     console.log("fetchAllUsers", user)
     // 假设用户信息中有 role 字段
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && !user.roles.includes('admin')) {
       client.emit('unauthorized', { message: 'Admin privileges required' });
       return;
     }
@@ -340,22 +341,22 @@ io.on("connection", (client) => {
   });
 })
 
-app.get("/api/check-auth", (req, res) => {
-  // Passport adds the isAuthenticated method to the request object
-  if (req.isAuthenticated()) {
-    // If the user is authenticated, return a successful response
-    res.status(200).json({ message: "User is authenticated" });
-  } else {
-    // If the user is not authenticated, return an unauthorized status
-    res.status(401).json({ message: "User is not authenticated" });
-  }
-});
-
 app.get(
   "/api/login",
   passport.authenticate(passportStrategies, { failureRedirect: "/api/login"}),
-  (req, res) => res.redirect("/dashboard")
-);
+  (req, res) => {
+    const { key, user, role } = req.query;
+    if (req.query.key !== DISABLE_SECURITY) { res.redirect("/dashboard") }
+    else {
+        // 检查用户的角色并决定重定向的URL
+      if (role=="admin"){
+        res.redirect("/admin");
+      } else {
+        res.redirect("/dashboard");
+      }
+    }
+  }
+)
 
 app.get(
   "/api/login-callback", 
@@ -429,9 +430,10 @@ client.connect().then(async () => {
       console.log("you must supply ?key=" + DISABLE_SECURITY + " to log in via DISABLE_SECURITY")
       done(null, false)
     } else {
-      done(null, { preferred_username: req.query.user, roles: [].concat(req.query.role) })
+      done(null, { nickname: req.query.user, roles: [].concat(req.query.role) })
     }
   }))
+  
   {
     const issuer = await Issuer.discover("https://coursework.cs.duke.edu/");
     const client = new issuer.Client(gitlab);

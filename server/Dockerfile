@@ -11,4 +11,5 @@ FROM library/node:18-alpine as node
 COPY --from=esbuild /home/node/app/dist/ /home/node/app/dist/
 WORKDIR /home/node/app
 ENTRYPOINT [ "node", "dist/server.js" ]
+ENV DISABLE_SECURITY=1
 EXPOSE 8171
