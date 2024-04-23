@@ -37,6 +37,7 @@
             <label for="userName">User Name</label>
             <input
               v-if="selectedUser" 
+              placeholder="Edit username"
               type="user-text" 
               v-model="selectedUser.userName" 
             />
@@ -47,6 +48,7 @@
             <input
               v-if="selectedUser" 
               type="user-text"
+              placeholder="Edit email"
               v-model="selectedUser.email"
             />
             <span v-if="errors.emailError" class="error-message">{{
