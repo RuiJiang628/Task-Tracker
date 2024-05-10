@@ -1,6 +1,5 @@
 <template>
   <div class="task-tracker-container">
-    <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <h1>Task Tracker</h1>
     </aside>
@@ -107,7 +106,7 @@ const currentDate = computed(() => {
 
 const selectUser = (user: User) => {
   selectedUser.value = { ...user };
-  originalUserData.value = { ...user }; // 深拷贝原始数据
+  originalUserData.value = { ...user }; 
   showEditUserModal.value = true;
 };
 
@@ -115,7 +114,7 @@ const saveUserEdits = () => {
   if (selectedUser.value) {
     socket.emit("updateUser", {
       ...selectedUser.value,
-      version: selectedUser.value.version // 确保包含版本号
+      version: selectedUser.value.version 
     });
   }
 };
@@ -132,22 +131,22 @@ const hasFormErrors = computed(() => {
 socket.on('userUpdated', (updatedUser) => {
   const index = users.value.findIndex(u => u._id === updatedUser._id);
   if (index !== -1) {
-    users.value[index] = updatedUser; // 更新用户列表中的数据
+    users.value[index] = updatedUser; 
     if (selectedUser.value && selectedUser.value._id === updatedUser._id) {
-      selectedUser.value = { ...updatedUser }; // 更新选中的用户数据
-      originalUserData.value = { ...updatedUser }; // 更新原始数据
+      selectedUser.value = { ...updatedUser }; 
+      originalUserData.value = { ...updatedUser }; 
     }
   }
-  showEditUserModal.value = false; // 关闭编辑模态框
+  showEditUserModal.value = false; 
 });
 
 socket.on('usersUpdated', updatedUser => {
   console.log('Received update for user:', updatedUser);
   const index = users.value.findIndex(u => (u as any)._id === updatedUser._id);
   if (index !== -1) {
-    users.value[index] = updatedUser; // 更新特定用户
+    users.value[index] = updatedUser; 
   } else {
-    users.value.push(updatedUser); // 或者添加新用户
+    users.value.push(updatedUser); 
   }
 })
 
@@ -172,7 +171,7 @@ onMounted(() => {
 
 const cancelEdit = () => {
   if (selectedUser.value && originalUserData.value) {
-    selectedUser.value = { ...originalUserData.value }; // 恢复到编辑前的原始数据
+    selectedUser.value = { ...originalUserData.value }; 
   }
   showEditUserModal.value = false;
 };
@@ -192,8 +191,6 @@ watch(
       errors.value.userNameError = newValue.userName ? "" : "User name cannot be empty";
       errors.value.emailError = newValue.email ? "" : "Email cannot be empty";
     } else {
-      // 如果 newValue 不存在，你可以决定如何设置错误信息
-      // 比如设置为默认值或清除错误信息
       errors.value.userNameError = "User name cannot be empty";
       errors.value.emailError = "Email cannot be empty";
     }

@@ -135,9 +135,8 @@ onMounted(async () => {
 
 socket.on("profileSaved", (updatedUser) => {    
     console.log("Profile saved:", updatedUser);
-    // 成功保存后更新本地存储的用户信息和版本号
     user.value = updatedUser;
-    originalUser.value = JSON.parse(JSON.stringify(updatedUser)); // 更新原始用户数据
+    originalUser.value = JSON.parse(JSON.stringify(updatedUser)); 
   });  
   
   socket.on("saveError", (error) => {
@@ -145,7 +144,7 @@ socket.on("profileSaved", (updatedUser) => {
     alert("Failed to save profile!");
 });
 
-const maxDate = ref(new Date().toISOString().substr(0, 10)); // 获取当前日期并转换为 YYYY-MM-DD 格式
+const maxDate = ref(new Date().toISOString().substr(0, 10)); 
 const minDate = ref("1900-01-01");
 
 const profileChanges = computed(() => {

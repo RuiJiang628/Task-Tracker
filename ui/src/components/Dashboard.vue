@@ -1,6 +1,5 @@
 <template>
   <div class="task-tracker-container">
-    <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <a href="/dashboard">
         <h1>Task Tracker</h1>
@@ -367,7 +366,7 @@ onMounted(() => {
   console.log("Dashboard component mounted");
   setupSocketListeners();
   // checkAuthentication();
-  intervalId = setInterval(updateDate, 1000); // 更新日期每秒钟
+  intervalId = setInterval(updateDate, 1000); 
 });
 
 socket.on("taskAdded", () => {
@@ -394,7 +393,6 @@ function setupSocketListeners() {
     console.error(data.message);
   });
 
-  // 请求任务数据
   fetchTasks();
 }
 </script>

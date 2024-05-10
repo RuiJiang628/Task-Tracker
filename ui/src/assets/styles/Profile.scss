@@ -10,7 +10,7 @@
 }
 
 a:hover {
-  text-decoration: none; /* 这将移除悬停时的下划线 */
+  text-decoration: none;
 }
 
 .task-tracker-container::before {
@@ -36,12 +36,12 @@ a:hover {
   justify-content: start;
   padding: 1vw 0;
   box-sizing: border-box;
-  box-shadow: 0 0 7px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.1);
   @media (max-width: 600px) {
-    width: 30vw; /* Decrease the width for smaller screens */
+    width: 30vw;
   }
   @media (min-width: 601px) {
-    width: 20vw; /* Keep the width for larger screens */
+    width: 20vw;
   }
 }
 
@@ -54,12 +54,12 @@ h1 {
   width: 100%;
   text-align: center;
   @media (max-width: 600px) {
-    font-size: 1rem; /* Decrease the font size for smaller screens */
-    line-height: 3vw; /* Decrease the line height for smaller screens */
+    font-size: 1rem;
+    line-height: 3vw;
   }
   @media (min-width: 601px) {
-    font-size: 1.5rem; /* Increase the font size for larger screens */
-    line-height: 5vw; /* Increase the line height for larger screens */
+    font-size: 1.5rem;
+    line-height: 5vw;
   }
 }
 
@@ -68,7 +68,7 @@ h1 {
   padding: 1rem;
   margin-top: 10vh;
   @media (max-width: 600px) {
-    margin-top: 6vh; /* Decrease the margin for smaller screens */
+    margin-top: 6vh;
   }
 }
 
@@ -79,13 +79,13 @@ h1 {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-left: 2rem; /* Space from the sidebar */
+  margin-left: 2rem;
   margin-right: 1rem;
   margin-top: 0.5rem;
   max-height: 100%;
   overflow-y: auto;
   @media (max-width: 600px) {
-    margin-left: 1rem; /* Decrease the margin for smaller screens */
+    margin-left: 1rem;
   }
   h2 {
     margin-bottom: 1rem;
@@ -115,51 +115,47 @@ h1 {
     font-family: "Lexend";
     width: 100%;
     padding: 0.5em;
-    // margin-left: 0.5em;
     border: 1px solid #ccc;
     margin-bottom: 0.5em;
     border-radius: 5px;
   }
 }
 
-/* 公共样式 */
 .button {
   display: flex;
   position: absolute;
   left: auto;
-  flex-direction: row; /* Align the text and icon in a row */
-  align-items: center; /* Vertically center the text and icon */
-  justify-content: center; /* Horizontally center the text */
-  padding: 0.5rem 1rem; /* Padding inside the button */
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
   font-family: "Lexend";
   font-style: normal;
   font-weight: 400;
   font-size: 1rem;
-  border: none; /* No border */
-  color: #ffffff; /* Text color */
-  border-radius: 0.5rem; /* Rounded corners for the button */
-  cursor: pointer; /* Change the cursor on hover */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  outline: none; /* Removes the outline */
-  white-space: nowrap; /* Prevents wrapping */
-  gap: 0.5rem; /* Gap between the text and the icon */
-
+  border: none;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  outline: none;
+  white-space: nowrap;
+  gap: 0.5rem;
   @media (max-width: 600px) {
-    font-size: 0.8rem; // 对于小屏幕，减小字体大小
-    padding: 0.5rem; // 减小内边距
-    gap: 0.3rem; // 减小图标和文本之间的距离
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    gap: 0.3rem;
   }
 }
 
-/* 独特样式 */
 .sign-out-button {
   left: auto;
   right: 2rem;
-  background-color: #ba5112; /* Button background color */
+  background-color: #ba5112;
   top: 2vw;
 
   .icon-logout {
-    background-image: url("../logout-icon.png"); /* Path to your logout icon */
+    background-image: url("../logout-icon.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -184,11 +180,11 @@ h1 {
 .return-button {
   top: 2vw;
   left: auto;
-  background-color: #ffb92e; /* Button background color */
+  background-color: #ffb92e;
   right: 11rem;
 
   .icon-return {
-    background-image: url("../return-icon.png"); /* Path to your return icon */
+    background-image: url("../return-icon.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -204,29 +200,29 @@ h1 {
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px; /* Spacing between buttons */
-  margin-top: 1rem; /* Space above the button container */
+  gap: 10px;
+  margin-top: 1rem;
 }
 
 .cancel-button {
-  background-color: #ffb92e; /* Button background color */
-  color: #ffffff; /* Text color */
-  border-radius: 5px; /* Rounded corners for the button */
-  border: none; /* No border */
-  cursor: pointer; /* Change the cursor on hover */
+  background-color: #ffb92e;
+  color: #ffffff;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
   font-family: "Lexend";
   font-weight: 400;
   margin-top: -2vh;
-  margin-right: 1rem; /* Space between the buttons */
+  margin-right: 1rem;
   position: inherit;
 }
 
 .save-button {
-  background-color: #ba5112; /* Button background color */
-  color: #ffffff; /* Text color */
-  border-radius: 5px; /* Rounded corners for the button */
-  border: none; /* No border */
-  cursor: pointer; /* Change the cursor on hover */
+  background-color: #ba5112;
+  color: #ffffff;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
   font-family: "Lexend";
   font-weight: 400;
   margin-top: -2vh;
@@ -237,9 +233,7 @@ h1 {
 .button-disabled {
   background-color: #cccccc;
   color: #666666;
-  cursor: not-allowed; /* 显示不允许的光标图标 */
-  pointer-events: none; /* 确保按钮在禁用状态下不可点击 */
-  /* 可以根据需要添加更多样式 */
+  cursor: not-allowed;
 }
 
 .error-message {

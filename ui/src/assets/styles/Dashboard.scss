@@ -6,7 +6,7 @@
   width: 100vw;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 确保伪元素不会超出容器范围 */
+  overflow: hidden;
 }
 
 .task-tracker-container::before {
@@ -20,11 +20,10 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
-  opacity: 0.7; /* 这里设置背景图片的透明度 */
-  z-index: -1; /* 确保背景图片在内容之下 */
+  opacity: 0.7;
+  z-index: -1;
 }
 
-/* 确保其他内容在背景之上 */
 .task-tracker-container > * {
   position: relative;
 }
@@ -38,12 +37,12 @@
   justify-content: start;
   padding: 1vw 0;
   box-sizing: border-box;
-  box-shadow: 0 0 7px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.1);
   @media (max-width: 600px) {
-    width: 30vw; /* Decrease the width for smaller screens */
+    width: 30vw;
   }
   @media (min-width: 601px) {
-    width: 20vw; /* Keep the width for larger screens */
+    width: 20vw;
   }
 }
 
@@ -56,60 +55,60 @@ h1 {
   width: 100%;
   text-align: center;
   @media (max-width: 600px) {
-    font-size: 1rem; /* Decrease the font size for smaller screens */
-    line-height: 3vw; /* Decrease the line height for smaller screens */
+    font-size: 1rem;
+    line-height: 3vw;
   }
   @media (min-width: 601px) {
-    font-size: 1.5rem; /* Increase the font size for larger screens */
-    line-height: 5vw; /* Increase the line height for larger screens */
+    font-size: 1.5rem;
+    line-height: 5vw;
   }
 }
 
 .add-task {
-  margin: 1vw 0; /* Add margin for spacing */
+  margin: 1vw 0;
 
   .add-task-button {
     font-family: "Lexend";
     display: flex;
     line-height: 3rem;
-    align-items: center; /* Centers the text and icon vertically */
-    justify-content: space-between; /* Puts space between the text and the icon */
-    background-color: #ffffff; /* Button background color */
-    border: 1px solid #ccc; /* Border color */
-    border-radius: 20px; /* Rounded corners for the button */
-    cursor: pointer; /* Change the cursor on hover */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    outline: none; /* Removes the outline */
-    border: none; /* Removes the border */
-    position: relative; /* Establishes a positioning context for absolutely positioned children */
-    gap: 0.5rem; /* Gap between the text and the icon */
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    outline: none;
+    border: none;
+    position: relative;
+    gap: 0.5rem;
     margin-left: 2vw;
     margin-right: 2vw;
     @media (max-width: 600px) {
-      font-size: 0.8rem; /* Decrease the font size for smaller screens */
-      padding: 0.2rem 0.2rem; /* Padding inside the button */
+      font-size: 0.8rem;
+      padding: 0.2rem 0.2rem;
     }
     @media (min-width: 601px) {
       font-size: 1.25rem;
-      padding: 0.75rem 1rem; /* Padding inside the button */
+      padding: 0.75rem 1rem;
     }
   }
 
   .icon-circle {
-    background-color: #ba5112; /* Circle background color */
-    color: #ffffff; /* Icon color */
-    padding: 8px; /* Padding inside the circle */
-    border-radius: 50%; /* Makes the span a circle */
-    display: flex; /* Enables center alignment for the plus */
-    align-items: center; /* Centers the plus vertically */
-    justify-content: center; /* Centers the plus horizontally */
-    width: 25px; /* Width of the circle */
-    height: 25px; /* Height of the circle */
-    margin-left: auto; /* Pushes the circle to the right */
+    background-color: #ba5112;
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    margin-left: auto;
   }
 
   .add-task-button:disabled .icon-circle {
-    background-color: #ccc; /* 灰色 */
+    background-color: #ccc;
   }
 }
 
@@ -121,64 +120,64 @@ h1 {
   background-color: transparent;
   display: flex;
   position: fixed;
-  top: 2vw; // 顶部的位置可以使用 vw 单位保持响应性
-  right: 12rem; // 保持距离 sign-out 按钮适当的距离
-  width: 2.5rem; // 使用 rem 单位
-  height: 2.5rem; // 使用 rem 单位
+  top: 2vw;
+  right: 12rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border: none;
   cursor: pointer;
-  border-radius: 50%; // 圆形按钮
+  border-radius: 50%;
   outline: none;
 }
 
 @media (max-width: 600px) {
   .profile-button {
-    top: 1rem; // 减小顶部距离
-    right: 7rem; // 减小右侧距离
-    width: 2rem; // 减小宽度
-    height: 2rem; // 减小高度
+    top: 1rem;
+    right: 7rem;
+    width: 2rem;
+    height: 2rem;
   }
 }
 
 .sign-out-button {
   display: flex;
   position: fixed;
-  top: 2vw; // 这里使用了视口宽度单位，可以根据屏幕大小进行调整
-  left: auto; // 改为 auto，使按钮能够基于右侧对齐
-  right: 2rem; // 保持按钮相对于屏幕右侧有一定的距离
+  top: 2vw;
+  left: auto;
+  right: 2rem;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem; // 使用 rem 单位，它们基于根元素的字体大小进行缩放
+  padding: 0.5rem 1rem;
   font-family: "Lexend";
-  font-size: 1rem; // 使用 rem 单位以响应不同的屏幕尺寸
+  font-size: 1rem;
   background-color: #ba5112;
   border: none;
   color: #ffffff;
-  border-radius: 0.5rem; // 使用 rem 单位保持一致性
+  border-radius: 0.5rem;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   outline: none;
-  gap: 0.5rem; // 使用 rem 单位
-  white-space: nowrap; // 防止文本换行
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 @media (max-width: 600px) {
   .sign-out-button {
-    top: 1rem; // 对于小屏幕，减小顶部距离
-    font-size: 0.8rem; // 对于小屏幕，减小字体大小
-    padding: 0.5rem; // 减小内边距
-    gap: 0.3rem; // 减小图标和文本之间的距离
+    top: 1rem;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    gap: 0.3rem;
   }
 }
 
 .icon-logout {
-  display: inline-block; // 使图标能够与文本在同一行显示
+  display: inline-block;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  width: 1rem; // 使用 rem 单位
-  height: 1rem; // 使用 rem 单位
+  width: 1rem;
+  height: 1rem;
   background-image: url("../logout-icon.png");
 }
 
@@ -194,12 +193,12 @@ h1 {
   flex-direction: column;
   align-items: center;
   @media (max-width: 600px) {
-    width: 30vw; /* Decrease the width for smaller screens */
-    font-size: 0.8rem; /* Decrease the font size for smaller screens */
+    width: 30vw;
+    font-size: 0.8rem;
   }
   @media (min-width: 601px) {
-    width: 20vw; /* Keep the width for larger screens */
-    font-size: 1.2rem; /* Increase the font size for larger screens */
+    width: 20vw;
+    font-size: 1.2rem;
   }
 }
 
@@ -212,7 +211,6 @@ h1 {
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  // font-size: 0.8rem;
 }
 
 .nav-button.active {
@@ -225,12 +223,12 @@ h1 {
   padding: 1rem;
   margin-top: 10vh;
   @media (max-width: 600px) {
-    margin-top: 6vh; /* Decrease the margin for smaller screens */
+    margin-top: 6vh;
   }
 }
 
 a:hover {
-  text-decoration: none; /* 这将移除悬停时的下划线 */
+  text-decoration: none;
 }
 
 .greeting-section {
@@ -241,26 +239,26 @@ a:hover {
   padding: 2rem;
   width: 90%;
   height: 25%;
-  margin-left: 2rem; /* Space from the sidebar */
+  margin-left: 2rem;
   margin-right: 1rem;
   margin-bottom: 5%;
   align-content: center;
   margin-top: 0.5rem;
   @media (max-width: 600px) {
-    margin-left: 1rem; /* Decrease the margin for smaller screens */
-    margin-right: 1rem; /* Decrease the margin for smaller screens */
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   h2 {
     font-family: "Lexend";
     font-weight: 600;
-    font-size: 2rem; /* 35px / 16px = 2.1875rem */
+    font-size: 2rem;
     line-height: 1.6;
     margin-top: 0.5rem;
     margin-bottom: 0rem;
     color: #251814;
     @media (max-width: 600px) {
-      font-size: 1.6rem; /* 24px / 16px = 1.5rem */
+      font-size: 1.6rem;
     }
   }
 
@@ -271,22 +269,22 @@ a:hover {
 
   .date {
     position: absolute;
-    right: 1rem; /* 根据需要调整，这将把日期推向右下角 */
-    bottom: 1rem; /* 根据需要调整，这也将把日期推向右下角 */
+    right: 1rem;
+    bottom: 1rem;
     font-family: "Lexend";
     line-height: 1;
     font-size: 0.8rem;
     color: #666;
     @media (max-height: 400px) {
-      font-size: 0.7rem; /* Decrease the font size for smaller screens */
+      font-size: 0.7rem;
     }
   }
 }
 
 .task-section {
   @media (max-width: 600px) {
-    margin-left: 1rem; /* Decrease the margin for smaller screens */
-    margin-right: 1rem; /* Decrease the margin for smaller screens */
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
   background: transparent;
   border-radius: 5px;
@@ -301,7 +299,7 @@ a:hover {
     h2 {
       font-weight: 500;
       @media (max-width: 600px) {
-        font-size: 1.25rem; /* Decrease the font size for smaller screens */
+        font-size: 1.25rem;
       }
     }
   }
@@ -316,11 +314,11 @@ a:hover {
     line-height: 100%;
     color: #ba5112;
     @media (max-width: 600px) {
-      font-size: 0.8rem; /* Decrease the font size for smaller screens */
+      font-size: 0.8rem;
     }
     &:disabled {
-      color: #ccc; /* 灰色，表示禁用状态 */
-      cursor: not-allowed; /* 鼠标指针显示为不允许的符号，表示按钮不可点击 */
+      color: #ccc;
+      cursor: not-allowed;
     }
   }
 
@@ -328,20 +326,20 @@ a:hover {
     display: flex;
     flex-direction: column;
     max-height: 50vh;
-    overflow-y: auto; // Enable vertical scrolling
-    margin-bottom: 10%; // Space between the task list and the add task button
+    overflow-y: auto;
+    margin-bottom: 10%;
 
     .task-item {
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.5rem; // Space between the custom checkbox and the task text
-      margin-bottom: 1rem; // Space between task items
+      gap: 0.5rem;
+      margin-bottom: 1rem;
       padding: 1rem;
-      background: #ffffff; // Default background color, assuming this matches the unchecked state
-      border-radius: 1rem; // Rounded corners for the task item
+      background: #ffffff;
+      border-radius: 1rem;
       box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s ease; // Smooth transition for background color change
+      transition: background-color 0.3s ease;
     }
 
     .custom-checkbox {
@@ -383,17 +381,16 @@ a:hover {
       font-family: "Lexend", sans-serif;
       font-size: 1rem;
       line-height: 1.5rem;
-      color: #251814; /* Default text color */
-      padding-left: 2vw; /* Space for the custom checkbox */
+      color: #251814;
+      padding-left: 2vw;
       @media (max-width: 600px) {
-        font-size: 0.8rem; /* Decrease the font size for smaller screens */
+        font-size: 0.8rem;
       }
     }
 
-    /* Change the background color of the entire task item when checked */
     .task-item.checked {
       background-color: #ffb92e;
-      box-shadow: none; // Assuming no shadow in the checked state
+      box-shadow: none;
     }
   }
 }
@@ -442,15 +439,14 @@ input[type="date"],
 textarea {
   display: flex;
   flex-direction: row;
-  // justify-content: center;
   align-items: center;
-  width: 100%; /* Full width of the modal-content */
-  padding: 12px; /* Padding inside the input */
-  margin-bottom: 0.8em; /* Space between inputs */
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 0.8em;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 1em; /* Larger font size */
-  font-family: "Lexend"; /* Use the Lexend font */
+  font-size: 1em;
+  font-family: "Lexend";
 }
 
 input[type="text"],
@@ -459,13 +455,13 @@ textarea {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 100%; /* Full width of the modal-content */
-  padding: 12px; /* Padding inside the input */
-  margin-bottom: 16px; /* Space between inputs */
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
   border: none;
-  border-radius: 12px; /* Slightly rounded corners */
+  border-radius: 12px;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-  font-size: 1em; /* Larger font size */
+  font-size: 1em;
 }
 
 select {
@@ -479,11 +475,10 @@ select {
   font-family: "Lexend";
   background-color: #fff;
   outline: none;
-  -moz-appearance: none; /* Remove the default arrow in Firefox */
-  -webkit-appearance: none; /* Remove the default arrow in Chrome/Safari */
+  -moz-appearance: none;
+  -webkit-appearance: none;
 }
 
-/* Style for the custom dropdown arrow */
 .select-wrapper::after {
   content: '▼';
   position: absolute;
@@ -492,13 +487,12 @@ select {
   pointer-events: none;
 }
 
-/* Ensure that the select-wrapper class is used on a div wrapping the select element */
 .select-wrapper {
-  position: relative;
+  position:relative;
 }
 
 .modal-content textarea[placeholder="Add description"] {
-  min-height: 100px; /* 或者你想要的任何高度 */
+  min-height: 100px;
 }
 
 .modal-footer {
@@ -511,7 +505,7 @@ select {
 
 .modal-actions {
   display: flex;
-  gap: 0.5rem; /* 按钮之间的空间 */
+  gap: 0.5rem;
   justify-content: flex-end;
 }
 
@@ -530,7 +524,7 @@ select {
   color: white;
   background-color: #d9534f;
   border: none;
-  margin-right: auto; /* 将删除按钮推向左侧 */
+  margin-right: auto;
 }
 
 .cancel-button {
@@ -560,9 +554,7 @@ select {
 .button-disabled {
   background-color: #cccccc;
   color: #666666;
-  cursor: not-allowed; /* 禁止光标图标 */
-  /* 确保按钮在禁用状态下看起来不是互动的 */
-  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .error-message {

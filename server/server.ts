@@ -86,7 +86,7 @@ io.on("connection", (client) => {
   const user = (client.request as any).session?.passport?.user;
   const netID = user?.nickname;
   if (netID) {
-    client.join(netID); // 将用户加入以netID为名称的房间
+    client.join(netID); 
   } else {
     client.emit("unauthorized", { message: "User is not authenticated" });
     client.disconnect();
@@ -113,13 +113,11 @@ io.on("connection", (client) => {
         return;
     }
 
-    // 获取并发送更新后的用户数据
     const updatedUser = await db.collection("users").findOne({ _id: new ObjectId(_id) });
     client.emit("profileSaved", updatedUser);
   });
 
 
-  // Add task event
   client.on("addTask", async (taskData) => {
     try {
       const netID = (client.request as any).session.passport.user.nickname;
@@ -128,7 +126,6 @@ io.on("connection", (client) => {
         client.emit("unauthorized", { message: "User not found" });
         return;
       }
-      // 创建新任务
       const newTask: Task = {
         taskID:
           user.tasks.length > 0
@@ -175,7 +172,7 @@ io.on("connection", (client) => {
           client.emit("unauthorized", { message: "User not found" });
           return;
         }
-        client.emit("tasksFetched", user.tasks); // 发送任务数据给客户端
+        client.emit("tasksFetched", user.tasks); 
       } catch (error) {
         console.error("Error fetching tasks:", error);
         client.emit("taskError", { message: "Failed to fetch tasks" });
@@ -190,7 +187,6 @@ io.on("connection", (client) => {
       const netID = (client.request as any).session.passport.user.nickname;
       const { taskID, checked } = taskData;
 
-      // Update the task in the user's document
       const updateResult = await db
         .collection("users")
         .updateOne(
@@ -231,7 +227,6 @@ io.on("connection", (client) => {
       };
       const updateResult = await db.collection("users").updateOne(filter, update);
       if (updateResult.matchedCount === 0) {
-        // 如果没有文档匹配，可能是因为没有找到具有相应taskID和version的任务
         throw new Error("No task matches the provided taskID and version, update failed.");
       }
       client.emit("taskUpdated", { message: "Task successfully updated." });
@@ -308,7 +303,6 @@ io.on("connection", (client) => {
       return;
     }
     console.log("fetchAllUsers", user)
-    // 假设用户信息中有 role 字段
     if (user.role !== 'admin' && !user.roles.includes('admin')) {
       client.emit('unauthorized', { message: 'Admin privileges required' });
       return;
@@ -348,7 +342,6 @@ app.get(
     const { key, user, role } = req.query;
     if (req.query.key !== DISABLE_SECURITY) { res.redirect("/dashboard") }
     else {
-        // 检查用户的角色并决定重定向的URL
       if (role=="admin"){
         res.redirect("/admin");
       } else {
@@ -362,7 +355,6 @@ app.get(
   "/api/login-callback", 
   passport.authenticate(passportStrategies, { failureRedirect: "/api/login" }),
   (req, res) => {
-    // 检查用户的角色并决定重定向的URL
     console.log("login-callback", (req.user as User).role);
     if ((req.user as User).role === "admin") {
       res.redirect("/admin");

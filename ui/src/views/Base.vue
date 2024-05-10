@@ -2,7 +2,6 @@
   <router-view />
   <Dashboard>
     <template v-slot:header>
-      <!-- 登录按钮 -->
       <button class="sign-out-button" @click="handleLogin">
         Sign in
       </button>

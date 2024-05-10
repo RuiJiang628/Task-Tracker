@@ -35,7 +35,6 @@ import { io } from "socket.io-client";
 
 const socket = io();
 
-// 函数用于向后端发送任务添加请求
 export function addTask(
   task: Task,
   callbacks: {
@@ -45,12 +44,10 @@ export function addTask(
 ): void {
   socket.emit("addTask", task);
 
-  // 监听任务添加成功的事件
   socket.on("taskAdded", (data: any) => {
     callbacks.onSuccess(data.task);
   });
 
-  // 监听添加任务时发生错误的事件
   socket.on("taskError", (data: any) => {
     callbacks.onError(data.message);
   });
