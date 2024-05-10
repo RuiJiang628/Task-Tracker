@@ -434,8 +434,6 @@ client.connect().then(async () => {
       nonce: generators.nonce(),
       redirect_uri: `http://127.0.0.1:31000/api/login-callback`,
       state: generators.state(),
-      // this forces a fresh login screen every time
-      // prompt: "login",
     };
 
     async function verify(tokenSet: any, userInfo: any, done: any) {
