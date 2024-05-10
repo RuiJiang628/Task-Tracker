@@ -412,7 +412,6 @@ app.post("/api/logout", (req, res, next) => {
   });
 });
 
-// Connect to MongoDB and start the server
 client.connect().then(async () => {
   logger.info("connected successfully to MongoDB");
   db = client.db("task_tracker");
